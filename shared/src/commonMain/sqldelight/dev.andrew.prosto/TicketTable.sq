@@ -1,0 +1,17 @@
+CREATE TABLE StoredCoworkingTicket (
+    id INTEGER NOT NULL,
+    coworkingId INTEGER NOT NULL,
+    epochDays INTEGER NOT NULL,
+    qrData TEXT NOT NULL,
+    PRIMARY KEY(id)
+);
+
+selectAll:
+SELECT * FROM StoredCoworkingTicket;
+
+selectAllById:
+SELECT * FROM StoredCoworkingTicket WHERE coworkingId=:coworkingId;
+
+insertOrUpdate:
+INSERT OR REPLACE INTO StoredCoworkingTicket(id, coworkingId, epochDays, qrData)
+VALUES (?, ?, ?, ?);

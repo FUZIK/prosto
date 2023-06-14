@@ -1,0 +1,27 @@
+CREATE TABLE UserSavesCanTable (
+    rowId INTEGER NOT NULL,
+    selectedCoworkingId INTEGER,
+    savedEmail TEXT,
+    savedPassword TEXT,
+    PRIMARY KEY(rowId)
+);
+
+
+INSERT INTO UserSavesCanTable (rowId)
+VALUES (0);
+
+selectAll:
+SELECT * FROM UserSavesCanTable WHERE rowId=0;
+
+selectCoworkingId:
+SELECT selectedCoworkingId FROM UserSavesCanTable WHERE rowId=0;
+
+updateCoworkingId:
+UPDATE UserSavesCanTable SET selectedCoworkingId = :selectedCoworkingId WHERE rowId = 0;
+
+selectAuthCredits:
+SELECT savedEmail, savedPassword FROM UserSavesCanTable WHERE rowId=0;
+
+updateAuthCredits:
+UPDATE UserSavesCanTable SET savedEmail = :savedEmail, savedPassword = :savedPassword WHERE rowId = 0;
+
