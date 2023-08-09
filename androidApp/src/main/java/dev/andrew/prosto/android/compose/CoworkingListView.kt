@@ -1,7 +1,6 @@
 package dev.andrew.prosto.android.compose
 
 import android.content.res.Configuration
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
@@ -17,8 +16,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -27,6 +28,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import dev.andrew.prosto.ProstoTheme
 import dev.andrew.prosto.repository.Coworking
 
@@ -35,23 +37,25 @@ fun CoworkingItemView(coworking: Coworking, isSelected: Boolean) {
     Card(
         modifier = Modifier
             .padding(10.dp),
-//        colors = CardDefaults.cardColors(
-//            containerColor = Color(coworking.firmColor)),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 10.dp
         )
     ) {
         Surface(
-            modifier = Modifier
-                .animateContentSize(),
             shape = CardDefaults.shape
         ) {
+            // TODO заменить загрузку из интернета на локальные ресурсы (желательно используя KMM)
+            val image = ImageRequest.Builder(LocalContext.current)
+                .data(coworking.tumblrLink)
+                .crossfade(true)
+                .build()
             AsyncImage(
                 modifier = Modifier
                     .fillMaxHeight(0.3f),
-                model = coworking.tumblrLink,
+                model = image,
                 contentDescription = "",
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
+                filterQuality = FilterQuality.Low
             )
         }
 
