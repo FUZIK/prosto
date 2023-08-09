@@ -23,7 +23,8 @@ data class Coworking(
     val firmColor: Long,
     val licenseRead: String,
     val latitude: Long = 0,
-    val longitude: Long = 0
+    val longitude: Long = 0,
+    val isSupportTurniket: Boolean = false
 )
 
 interface CoworkingSource {
@@ -52,7 +53,8 @@ class Cowork_LocalImpl: CoworkingSource {
             metroStation = MetroStation.SPB_VASKA,
             bitrixID = 1675,
             firmColor = 0xFF6200EA,
-            licenseRead = "филиал молодёжного пространства \n«ПРОСТО» – на Большом"
+            licenseRead = "филиал молодёжного пространства \n«ПРОСТО» – на Большом",
+            isSupportTurniket = true
         )
         val TO_SMART = Coworking(
             id = 2,

@@ -21,6 +21,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -104,11 +106,20 @@ fun EmptyTicketItem(modifier: Modifier = Modifier) {
                         val qrModifier = Modifier.size(88.dp)
                         Image(modifier = qrModifier
                             .offset(x = 15.dp, y = 15.dp)
-                            .rotate(-30f), imageVector = Icons.Filled.QrCode, contentDescription = "")
-                        Image(modifier = qrModifier, imageVector = Icons.Filled.QrCode, contentDescription = "")
+                            .rotate(-30f),
+                            colorFilter = ColorFilter.tint(Color(0xFF6F797A)),
+                            imageVector = Icons.Filled.QrCode,
+                            contentDescription = "")
+                        Image(modifier = qrModifier,
+                            colorFilter = ColorFilter.tint(Color(0xFF6F797A)),
+                            imageVector = Icons.Filled.QrCode,
+                            contentDescription = "")
                         Image(modifier = qrModifier
                             .offset(x = -15.dp, y = 15.dp)
-                            .rotate(30f), imageVector = Icons.Filled.QrCode, contentDescription = "")
+                            .rotate(30f),
+                            colorFilter = ColorFilter.tint(Color(0xFF6F797A)),
+                            imageVector = Icons.Filled.QrCode,
+                            contentDescription = "")
                     }
                     Text(modifier = Modifier
                         .align(Alignment.CenterHorizontally),

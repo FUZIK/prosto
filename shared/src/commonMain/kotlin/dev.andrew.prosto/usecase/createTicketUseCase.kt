@@ -20,7 +20,7 @@ class CreateTicketUseCaseImpl(
     ): CoworkTicketResult {
         val result = ticketSource.createTicket(coworking = coworking, ticketInfo = ticketInfo)
         if (result.isSuccess && result.ticket != null) {
-            ticketStore.addTicket(coworking, result.ticket)
+            ticketStore.addOrUpdate(coworking, result.ticket)
         }
         return result
     }

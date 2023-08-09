@@ -1,7 +1,6 @@
 package dev.andrew.prosto.database
 
 import dev.andrew.prosto.repository.AuthCredits
-import dev.andrew.prosto.repository.AuthSession
 import dev.andrew.prosto.repository.Coworking
 import dev.andrew.prosto.repository.CoworkingSource
 import dev.andrew.prosto.repository.TicketInfo
@@ -13,7 +12,7 @@ import kotlinx.datetime.LocalDate
 
 interface TicketStore {
     suspend fun getTickets(coworking: Coworking): List<VisitTicket>
-    suspend fun addTicket(coworking: Coworking, ticket: VisitTicket)
+    suspend fun addOrUpdate(coworking: Coworking, ticket: VisitTicket)
 }
 
 interface UserAuthLocalStore {
@@ -64,22 +63,23 @@ class TicketStoreImpl(
     private val ticketTableQueries: TicketTableQueries
 ): TicketStore {
     override suspend fun getTickets(coworking: Coworking): List<VisitTicket> {
-        return ticketTableQueries.selectAllById(coworkingId = coworking.id.toLong()) { id, _, epochDays, qrData ->
+        return ticketTableQueries.selectByCoworkingId(coworkingId = coworking.id.toLong()) { id, _, epochDays, qrDataProsto, qrDataTurniket ->
             val info = TicketInfo(
                 date = LocalDate.fromEpochDays(epochDays.toInt()),
                 times = emptyList(),
                 params = TicketParams()
             )
-            VisitTicket(id = id, info = info, dataForQR = qrData)
+            VisitTicket(id = id, info = info, qrDataProsto = qrDataProsto, qrDataTurniket = qrDataTurniket)
         }.executeAsList()
     }
 
-    override suspend fun addTicket(coworking: Coworking, ticket: VisitTicket) {
+    override suspend fun addOrUpdate(coworking: Coworking, ticket: VisitTicket) {
         ticketTableQueries.insertOrUpdate(
             id = ticket.id,
             coworkingId = coworking.id.toLong(),
             epochDays = ticket.date.toEpochDays().toLong(),
-            qrData = ticket.dataForQR)
+            qrDataProsto = ticket.qrDataProsto,
+            qrDataTurniket = ticket.qrDataTurniket)
     }
 }
 

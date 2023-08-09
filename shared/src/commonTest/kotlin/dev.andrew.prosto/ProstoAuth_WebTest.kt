@@ -24,7 +24,6 @@ class ProstoAuth_WebTest {
     @Test
     fun testSuccessAuth() = runTest {
         val authResult = authService.signIn(VALID_AUTH_CREDITS)
-        println("authResult.Session.Secret: ${authResult.authSession?.secret}")
         assertTrue(authResult.isAuthSuccess)
         assertNotNull(authResult.authSession)
     }
@@ -45,8 +44,6 @@ class ProstoAuth_WebTest {
     @Test
     fun testCheckValidSession() = runTest {
         val authResult = authService.signIn(VALID_AUTH_CREDITS)
-        println(authResult.isAuthSuccess)
-        println(authResult.authSession?.secret)
         val sessionExpired = authService.isExpired(authResult.authSession!!)
         assertTrue(authResult.isAuthSuccess)
         assertNotNull(authResult.authSession)

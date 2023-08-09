@@ -70,7 +70,7 @@ fun SignInViewDialog() {
         onDismissRequest = {
            controller.emitEvent(SignInDialogEvent.OnDismiss())
         },
-//        properties = DialogProperties(securePolicy = SecureFlagPolicy.SecureOn)
+        properties = DialogProperties(securePolicy = SecureFlagPolicy.SecureOn)
     ) {
         Card(Modifier.wrapContentSize(unbounded = true)) {
             Box(Modifier.padding(20.dp)) {
@@ -192,6 +192,13 @@ fun SignInViewDialog() {
 
     val keyboardController = LocalSoftwareKeyboardController.current
     LaunchedEffect(loginFocusRequester) {
+        // TODO замечено падение на samsung beyond1 (Galaxy S10) Android 11 (SDK 30)
+        //        Exception java.lang.IllegalStateException:
+        //        FocusRequester is not initialized. Here are some possible fixes:
+        //        1. Remember the FocusRequester: val focusRequester = remember { FocusRequester() }
+        //        2. Did you forget to add a Modifier.focusRequester() ?
+        //        3. Are you attempting to request focus during composition? Focus requests should be made in
+        //        response to some event. Eg Modifier.clickable { focusRequester.requestFocus() }
         loginFocusRequester.requestFocus()
         awaitFrame()
         keyboardController?.show()

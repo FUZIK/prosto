@@ -9,6 +9,7 @@ object ScreenSize {
     @Composable
     fun height(): Dp {
         val configuration = LocalConfiguration.current
+        configuration.screenHeightDp
         return configuration.screenHeightDp.dp
     }
     @Composable

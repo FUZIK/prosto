@@ -119,7 +119,6 @@ class CoworkTicket_WebTest {
     @Test
     fun testGettingTickets() = runTest {
         val ticketList = ticketRepository.fetchTickets()
-        println("Tickets: $ticketList")
         assertFalse(ticketList.isEmpty())
     }
 }

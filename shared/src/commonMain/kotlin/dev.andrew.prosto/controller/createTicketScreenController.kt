@@ -1,6 +1,6 @@
 package dev.andrew.prosto.controller
 
-import dev.andrew.prosto.ProstoNavigator
+import dev.andrew.prosto.navigation.ProstoNavigator
 import dev.andrew.prosto.StateUIController
 import dev.andrew.prosto.ToporObject
 import dev.andrew.prosto.repository.AvailableTime
@@ -53,7 +53,7 @@ sealed interface TicketScreenEvent {
     class OnTicketTimeChanged(val time: LocalTime, val selected: Boolean): TicketScreenEvent
     class OnTicketParamsChanged(val selectedParams: TicketParams): TicketScreenEvent
     class OnRegisterClick: TicketScreenEvent
-    class BackPressed: TicketScreenEvent
+    class OnBackPressed: TicketScreenEvent
 }
 
 enum class TicketScreenDate {
@@ -177,7 +177,7 @@ class CreateTicketScreenController(
             is TicketScreenEvent.OnRegisterClick -> {
                 registerTicket()
             }
-            is TicketScreenEvent.BackPressed -> {
+            is TicketScreenEvent.OnBackPressed -> {
                 navigator.navigateBack()
             }
         }

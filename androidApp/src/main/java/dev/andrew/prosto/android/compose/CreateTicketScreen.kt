@@ -45,7 +45,7 @@ fun CreateTicketScreen(coworking: Coworking) {
                 },
                 navigationIcon = {
                     IconButton(onClick = {
-                        controller.emitEvent(TicketScreenEvent.BackPressed())
+                        controller.emitEvent(TicketScreenEvent.OnBackPressed())
                     }) {
                         Icon(imageVector = Icons.Default.ArrowBack,
                             contentDescription = "navigate to back")

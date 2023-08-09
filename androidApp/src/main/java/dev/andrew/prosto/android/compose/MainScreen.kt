@@ -1,7 +1,8 @@
 package dev.andrew.prosto.android.compose
 
+import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
@@ -20,7 +21,6 @@ import androidx.compose.material.icons.filled.OpenInBrowser
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -33,7 +33,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -48,7 +51,7 @@ import dev.andrew.prosto.controller.MainScreenEvent
 import dev.andrew.prosto.repository.Coworking
 
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MainScreen() {
     val coroutineScope = rememberCoroutineScope()
@@ -57,10 +60,15 @@ fun MainScreen() {
 
     if (state.isCoworkingListLoading) {
         Box(Modifier.fillMaxSize()) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center))
+            ProstoLogo(Modifier.align(Alignment.Center).padding(10.dp))
+            // TODO бага изза прогресса экран фризится
+            //  здорово зарепортить или попытаться исправить прогресс
+            //  https://github.com/material-components/material-components-android/issues/2355
+            //  CircularProgressIndicator(
+            //    modifier = Modifier.align(Alignment.Center))
         }
-    } else {
+    } else if (!state.isCoworkingListLoading) {
+        println("MainContent")
         val coworking = state.coworking!!
         val metroColor = getMetroColor(coworking)
 
@@ -108,9 +116,8 @@ fun MainScreen() {
                     Column(modifier = Modifier.fillMaxSize()) {
                         val uriHandler = LocalUriHandler.current
                         CoworkingAddressCard(Modifier.padding(15.dp), {
-                            try {
+                            runCatching {
                                 uriHandler.openUri("geo:0,0?q=${coworking.fullAddress}")
-                            } catch (_: Throwable) {
                             }
                          }, coworking, metroColor)
                         Box(
@@ -156,6 +163,7 @@ fun MainScreen() {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CoworkingAddressCard(
     modifier: Modifier = Modifier,
@@ -163,13 +171,23 @@ fun CoworkingAddressCard(
     coworking: Coworking,
     metroColor: Color
 ) {
+    val clipboardManager = LocalClipboardManager.current
+    val context = LocalContext.current
     Card(modifier = Modifier
         .padding(top = 10.dp)
         .wrapContentHeight()
         .then(modifier)
-        .clickable {
-            onTargetClick()
-        }) {
+        .combinedClickable(
+            onClick = {
+                onTargetClick()
+            },
+            onLongClick = {
+                clipboardManager.setText(AnnotatedString(coworking.fullAddress))
+                Toast
+                    .makeText(context, "Address copied!", Toast.LENGTH_SHORT)
+                    .show()
+            }
+        )) {
         Column(modifier = Modifier.padding(start = 14.dp, end = 14.dp, top = 7.dp, bottom = 7.dp)) {
             Row(Modifier.fillMaxWidth()) {
                 Text(

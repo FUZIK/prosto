@@ -14,9 +14,17 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 
+enum class QrDataType {
+    API_URL,
+    DATA_RG_KEY
+}
+
 sealed interface ProstoTicket {
+    val id: Long
     val date: LocalDate
-    val dataForQR: String
+    val qrDataProsto: String
+    @Deprecated("All times null. Use getUniversalTurniketKey()")
+    val qrDataTurniket: String?
     fun isActual(): Boolean =
         Clock.System.now().toLocalDateTime(kotlinx.datetime.TimeZone.UTC).let { now ->
             date >= now.date
@@ -28,8 +36,7 @@ sealed interface ProstoTicket {
 }
 
 class TicketInfo(
-    @Deprecated("Moved to ProstoTicket")
-    val date: LocalDate,
+    @Deprecated("Moved to ProstoTicket") val date: LocalDate,
     val times: List<LocalTime>,
     val params: TicketParams
 )
@@ -48,11 +55,12 @@ data class TicketParams(
     val needTemporaryStorage: Boolean = false
 )
 
-class VisitTicket(
-    val id: Long,
+data class VisitTicket(
+    override val id: Long,
     val info: TicketInfo,
     override val date: LocalDate = info.date,
-    override val dataForQR: String
+    override val qrDataProsto: String,
+    override val qrDataTurniket: String?
 ): ProstoTicket
 
 class CoworkTicketResult(
@@ -67,15 +75,10 @@ class AvailableTime(
 )
 
 interface ProstoTicketSource {
-    suspend fun fetchTickets(): List<VisitTicket>
     suspend fun createTicket(coworking: Coworking, ticketInfo: TicketInfo): CoworkTicketResult
     suspend fun getAvailableDates(coworking: Coworking): List<LocalDate>
     suspend fun getAvailableTimes(coworking: Coworking, date: LocalDate): List<AvailableTime>
-}
-
-enum class QrDataType {
-    API_URL,
-    DATA_RG_KEY
+    suspend fun getUniversalTurniketKey(): String?
 }
 
 class CoworkTicket_WebImpl(
@@ -309,16 +312,13 @@ class CoworkTicket_WebImpl(
                     isSuccess = false
                 )
             } else {
+                val qrDataType = getQrDataType(coworking)
                 CoworkTicketResult(
                     ticket = VisitTicket(
                         id = eventID!!.toLong(),
                         info = info,
-                        dataForQR = getQrDataType(coworking).run {
-                            when(this) {
-                                QrDataType.API_URL -> "http://xn--90azaccdibh.xn--p1ai/api/form_participation.php?user_id=${userID}&event_id=${eventID}"
-                                QrDataType.DATA_RG_KEY -> getDataRgKey() ?: "http://xn--90azaccdibh.xn--p1ai/api/form_participation.php?user_id=${userID}&event_id=${eventID}"
-                            }
-                        },
+                        qrDataProsto = "http://xn--90azaccdibh.xn--p1ai/api/form_participation.php?user_id=${userID}&event_id=${eventID}",
+                        qrDataTurniket = if (qrDataType == QrDataType.DATA_RG_KEY) getUniversalTurniketKey() else null,
                     ),
                     error = null,
                     isSuccess = true
@@ -328,17 +328,16 @@ class CoworkTicket_WebImpl(
 
         return CoworkTicketResult(ticket = null, error = "Unknown error", isSuccess = false)
     }
-    private var dataRgKey: String? = null
-    private suspend fun getDataRgKey(): String? {
-        if (dataRgKey == null) {
-            val response = httpClient.get("https://xn--90azaccdibh.xn--p1ai/auth/personal.php#user_div_recorded_coworking")
-            val html = response.bodyAsText()
-            DATA_RG_KEY_ATTR_REGEX.find(html)?.also { result ->
-                dataRgKey = result.value
-            }
+
+    private suspend fun fetchRgKey(): String? {
+        val response = httpClient.get("https://xn--90azaccdibh.xn--p1ai/auth/personal.php#user_div_recorded_coworking")
+        val html = response.bodyAsText()
+        DATA_RG_KEY_ATTR_REGEX.find(html)?.also { result ->
+            return result.groupValues.getOrNull(1)
         }
-        return dataRgKey
+        return null
     }
+
     override suspend fun createTicket(
         coworking: Coworking,
         ticketInfo: TicketInfo
@@ -358,9 +357,6 @@ class CoworkTicket_WebImpl(
             }
         }
         return CoworkTicketResult(ticket = null, error = "Unknown error", isSuccess = false)
-    }
-    override suspend fun fetchTickets(): List<VisitTicket> {
-        return emptyList()
     }
     override suspend fun getAvailableDates(coworking: Coworking): List<LocalDate> {
         requestCoworkingPage().also { coworkingPage ->
@@ -391,5 +387,16 @@ class CoworkTicket_WebImpl(
             }
         }
         return emptyList()
+    }
+
+    private var cachedUniversalRgKey: String? = null
+    override suspend fun getUniversalTurniketKey(): String? {
+        return if (cachedUniversalRgKey == null) {
+            val rgKey = fetchRgKey()
+            rgKey?.also { cachedUniversalRgKey = it }
+        } else {
+            cachedUniversalRgKey
+        }
+
     }
 }

@@ -8,7 +8,8 @@ import dev.andrew.prosto.database.UserAuthLocalStoreImpl
 import dev.andrew.prosto.database.UserSelectedCoworkingLocalStore
 import dev.andrew.prosto.database.UserSelectedCoworkingLocalStoreLocalStoreImpl
 import dev.andrew.prosto.database.createDatabase
-import dev.andrew.prosto.repository.AuthSession
+import dev.andrew.prosto.navigation.ProstoDestination
+import dev.andrew.prosto.navigation.ProstoNavigator
 import dev.andrew.prosto.repository.AuthSource
 import dev.andrew.prosto.repository.CoworkTicket_WebImpl
 import dev.andrew.prosto.repository.Cowork_LocalImpl
@@ -25,12 +26,11 @@ import dev.andrew.prosto.usecase.IsSignInRequiredUseCase
 import dev.andrew.prosto.usecase.IsSignInRequiredUseCaseImpl
 import dev.andrew.prosto.usecase.SignInUseCase
 import dev.andrew.prosto.usecase.SignInUseCaseImpl
-import dev.andrew.prosto.utilities.getSessionIdFromHeaders
-import dev.andrew.prosto.utilities.isWebAuthResponseResult
+import dev.andrew.prosto.usecase.TicketTurniketKeyUseCase
+import dev.andrew.prosto.usecase.TicketTurniketKeyUseCaseImpl
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpSend
 import io.ktor.client.plugins.cookies.AcceptAllCookiesStorage
-import io.ktor.client.plugins.cookies.CookiesStorage
 import io.ktor.client.plugins.cookies.HttpCookies
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
@@ -39,14 +39,8 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.plugin
 import io.ktor.client.request.cookie
 import io.ktor.client.request.header
-import io.ktor.client.request.headers
-import io.ktor.http.Cookie
-import io.ktor.http.Url
-import io.ktor.http.cookies
 import io.ktor.util.AttributeKey
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
-import kotlin.coroutines.coroutineContext
 
 object ToporObject {
     val navigator: ProstoNavigator by lazy(LazyThreadSafetyMode.NONE) {
@@ -99,6 +93,10 @@ object ToporObject {
         IsSignInRequiredUseCaseImpl(authSource)
     }
 
+    val ticketTurniketKeyUseCase: TicketTurniketKeyUseCase by lazy {
+        TicketTurniketKeyUseCaseImpl(ticketStore, ticketSource)
+    }
+
 
 
     private var sqlDriverFactory: DriverFactory? = null
@@ -134,12 +132,82 @@ object ToporObject {
         }.also { client ->
             client.plugin(HttpSend).intercept { builder ->
                 val call = execute(builder)
-                if (builder.attributes.getOrNull(AttributeKey("isAuthRequest")) != true
+                if (builder.attributes.getOrNull(ProstoAuth_WebImpl.IS_AUTH_REQUEST) != true
                     && ToporObject.isSignInRequiredUseCase.isSignInRequired()) {
                     ToporObject.navigator.navigateTo(
-                        ProstoDestination.AuthDialog(
-                            dismiss = ProstoDestination.OnBackPressed(),
-                        ))
+                        ProstoDestination.AuthDialog()
+                    )
+
+                    // TODO okhttp3.internal.http2.Http2Stream$StreamTimeout.newTimeoutException
+                    //     samsung m31 (Galaxy M31)
+                    //    Android 12 (SDK 31)
+                    //    Exception o4.b:
+                    //    at io.ktor.client.plugins.HttpTimeoutKt.SocketTimeoutException (HttpTimeout.kt)
+                    //    at io.ktor.client.engine.okhttp.OkUtilsKt.mapOkHttpException (OkUtils.kt)
+                    //    at io.ktor.client.engine.okhttp.OkUtilsKt.access$mapOkHttpException (OkUtils.kt)
+                    //    at io.ktor.client.engine.okhttp.OkHttpCallback.onFailure (OkHttpCallback.java)
+                    //    at okhttp3.internal.connection.RealCall$AsyncCall.run (RealCall.java)
+                    //    at java.util.concurrent.ThreadPoolExecutor.runWorker (ThreadPoolExecutor.java:1137)
+                    //    at java.util.concurrent.ThreadPoolExecutor$Worker.run (ThreadPoolExecutor.java:637)
+                    //    at java.lang.Thread.run (Thread.java:1012)
+                    //    Caused by java.net.SocketTimeoutException: timeout
+                    //    at okhttp3.internal.http2.Http2Stream$StreamTimeout.newTimeoutException (Http2Stream.java)
+                    //    at okhttp3.internal.http2.Http2Stream$StreamTimeout.exitAndThrowIfTimedOut (Http2Stream.java)
+                    //    at okhttp3.internal.http2.Http2Stream.takeHeaders (Http2Stream.java)
+                    //    at okhttp3.internal.http2.Http2ExchangeCodec.readResponseHeaders (Http2ExchangeCodec.java)
+                    //    at okhttp3.internal.connection.Exchange.readResponseHeaders (Exchange.java)
+                    //    at okhttp3.internal.http.CallServerInterceptor.intercept (CallServerInterceptor.java)
+                    //    at okhttp3.internal.http.RealInterceptorChain.proceed (RealInterceptorChain.java)
+                    //    at okhttp3.internal.connection.ConnectInterceptor.intercept (ConnectInterceptor.java)
+                    //    at okhttp3.internal.http.RealInterceptorChain.proceed (RealInterceptorChain.java)
+                    //    at okhttp3.internal.cache.CacheInterceptor.intercept (CacheInterceptor.java)
+                    //    at okhttp3.internal.http.RealInterceptorChain.proceed (RealInterceptorChain.java)
+                    //    at okhttp3.internal.http.BridgeInterceptor.intercept (BridgeInterceptor.java)
+                    //    at okhttp3.internal.http.RealInterceptorChain.proceed (RealInterceptorChain.java)
+                    //    at okhttp3.internal.http.RetryAndFollowUpInterceptor.intercept (RetryAndFollowUpInterceptor.java)
+                    //    at okhttp3.internal.http.RealInterceptorChain.proceed (RealInterceptorChain.java)
+                    //    at okhttp3.internal.connection.RealCall.getResponseWithInterceptorChain$okhttp (RealCall.java)
+                    //    at okhttp3.internal.connection.RealCall$AsyncCall.run (RealCall.java)
+
+
+                    // TODO okhttp3.internal.platform.Platform.connectSocket
+                    //     samsung m31 (Galaxy M31)
+                    //    Android 12 (SDK 31)
+                    //    Exception o4.a:
+                    //    at io.ktor.client.plugins.HttpTimeoutKt.ConnectTimeoutException (HttpTimeout.kt)
+                    //    at io.ktor.client.engine.okhttp.OkUtilsKt.mapOkHttpException (OkUtils.kt)
+                    //    at io.ktor.client.engine.okhttp.OkUtilsKt.access$mapOkHttpException (OkUtils.kt)
+                    //    at io.ktor.client.engine.okhttp.OkHttpCallback.onFailure (OkHttpCallback.java)
+                    //    at okhttp3.internal.connection.RealCall$AsyncCall.run (RealCall.java)
+                    //    at java.util.concurrent.ThreadPoolExecutor.runWorker (ThreadPoolExecutor.java:1137)
+                    //    at java.util.concurrent.ThreadPoolExecutor$Worker.run (ThreadPoolExecutor.java:637)
+                    //    at java.lang.Thread.run (Thread.java:1012)
+                    //    Caused by java.net.SocketTimeoutException:
+                    //    at libcore.io.IoBridge.connectErrno (IoBridge.java:235)
+                    //    at libcore.io.IoBridge.connect (IoBridge.java:179)
+                    //    at java.net.PlainSocketImpl.socketConnect (PlainSocketImpl.java:142)
+                    //    at java.net.AbstractPlainSocketImpl.doConnect (AbstractPlainSocketImpl.java:390)
+                    //    at java.net.AbstractPlainSocketImpl.connectToAddress (AbstractPlainSocketImpl.java:230)
+                    //    at java.net.AbstractPlainSocketImpl.connect (AbstractPlainSocketImpl.java:212)
+                    //    at java.net.SocksSocketImpl.connect (SocksSocketImpl.java:436)
+                    //    at java.net.Socket.connect (Socket.java:646)
+                    //    at okhttp3.internal.platform.Platform.connectSocket (Platform.java)
+                    //    at okhttp3.internal.connection.RealConnection.connectSocket (RealConnection.java)
+                    //    at okhttp3.internal.connection.RealConnection.connect (RealConnection.java)
+                    //    at okhttp3.internal.connection.ExchangeFinder.findConnection (ExchangeFinder.java)
+                    //    at okhttp3.internal.connection.ExchangeFinder.findHealthyConnection (ExchangeFinder.java)
+                    //    at okhttp3.internal.connection.ExchangeFinder.find (ExchangeFinder.java)
+                    //    at okhttp3.internal.connection.RealCall.initExchange$okhttp (RealCall.java)
+                    //    at okhttp3.internal.connection.ConnectInterceptor.intercept (ConnectInterceptor.java)
+                    //    at okhttp3.internal.http.RealInterceptorChain.proceed (RealInterceptorChain.java)
+                    //    at okhttp3.internal.cache.CacheInterceptor.intercept (CacheInterceptor.java)
+                    //    at okhttp3.internal.http.RealInterceptorChain.proceed (RealInterceptorChain.java)
+                    //    at okhttp3.internal.http.BridgeInterceptor.intercept (BridgeInterceptor.java)
+                    //    at okhttp3.internal.http.RealInterceptorChain.proceed (RealInterceptorChain.java)
+                    //    at okhttp3.internal.http.RetryAndFollowUpInterceptor.intercept (RetryAndFollowUpInterceptor.java)
+                    //    at okhttp3.internal.http.RealInterceptorChain.proceed (RealInterceptorChain.java)
+                    //    at okhttp3.internal.connection.RealCall.getResponseWithInterceptorChain$okhttp (RealCall.java)
+                    //    at okhttp3.internal.connection.RealCall$AsyncCall.run (RealCall.java)
 
                     delay(300)
                     while (ToporObject.isSignInRequiredUseCase.isSignInRequired()) {

@@ -1,7 +1,7 @@
 package dev.andrew.prosto.controller
 
-import dev.andrew.prosto.ProstoDestination
-import dev.andrew.prosto.ProstoNavigator
+import dev.andrew.prosto.navigation.ProstoDestination
+import dev.andrew.prosto.navigation.ProstoNavigator
 import dev.andrew.prosto.StateUIController
 import dev.andrew.prosto.ToporObject
 import dev.andrew.prosto.database.UserAuthLocalStore
@@ -113,22 +113,13 @@ class SignInDialogController(
                 setState(state.copy(
                     signInProgress = false))
                 userAuthLocalStore.savedCredits = AuthCredits(email = state.email, password = state.password)
-                navigator.navState.value.also { navigation ->
-                    navigator.navigateBack()
-                    if (navigation is ProstoDestination.AuthDialog) {
-                        navigation.success?.let(navigator::navigateTo)
-                    }
-                }
+                navigator.navigateBack()
             }
             is SignInDialogEvent.OnDismiss -> {
                 setState(state.copy(
                     signInProgress = false))
-                navigator.navState.value.also { navigation ->
-                    navigator.navigateBack()
-                    if (navigation is ProstoDestination.AuthDialog) {
-                        navigation.dismiss?.let(navigator::navigateTo)
-                    }
-                }
+                navigator.navigateBack()
+                navigator.navigateBack()
             }
         }
     }

@@ -66,7 +66,8 @@ class TicketListProvider: PreviewParameterProvider<List<ProstoTicket>> {
         val date = NOW_DATE.plus(i, DateTimeUnit.DAY)
         VisitTicket(
             id = Long.MAX_VALUE,
-            dataForQR = "https://www.youtube.com/watch?v=tOzjasE9Fuw",
+            qrDataProsto = "https://www.youtube.com/watch?v=tOzjasE9Fuw",
+            qrDataTurniket = "tOzjasE9Fuw",
             info = TicketInfo(
                 date = date,
                 times = emptyList(),
@@ -75,6 +76,18 @@ class TicketListProvider: PreviewParameterProvider<List<ProstoTicket>> {
         )
     })
 }
+
+//    VisitTicket(
+//    id = 0,
+//    info = TicketInfo(
+//    date = Clock.System.now().toLocalDateTime(TimeZone.UTC).date,
+//    times = emptyList(),
+//    params = TicketParams()
+//    ),
+//    date = Clock.System.now().toLocalDateTime(TimeZone.UTC).date,
+//    qrDataProsto = "HGEKERKNESNEGSJKESESGKJSEEGNENKESFKFEJKESRL,GFREAKLGEAKGRHIETU4HQ39T3",
+//    qrDataTurniket = null
+//    )
 
 class TicketEmptyListProvider: PreviewParameterProvider<List<ProstoTicket>> {
     override val values = sequenceOf(emptyList<ProstoTicket>())

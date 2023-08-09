@@ -1,7 +1,7 @@
 plugins {
     kotlin("multiplatform")
     id("com.android.library")
-    kotlin("plugin.serialization") version "1.8.0"
+    kotlin("plugin.serialization") version "1.9.0"
     id("com.squareup.sqldelight")
 }
 
@@ -18,11 +18,12 @@ kotlin {
         }
     }
 
-    val coroutinesVersion = "1.6.4"
-    val ktorVersion = "2.2.4"
-    val serializationVersion = "1.5.0"
+    val coroutinesVersion = "1.7.3"
+    val ktorVersion = "2.3.3"
+    val serializationVersion = "1.5.1"
     val datetimeVersion = "0.4.0"
     val sqlDelightVersion = "1.5.5"
+    val sqlDelightCoroutinesExtVersion = "2.0.0"
 
     sourceSets {
         val commonMain by getting {
@@ -33,7 +34,7 @@ kotlin {
                 implementation("io.ktor:ktor-client-logging:$ktorVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:$datetimeVersion")
                 implementation("com.squareup.sqldelight:runtime:$sqlDelightVersion")
-                implementation("app.cash.sqldelight:coroutines-extensions:2.0.0-alpha05")
+                implementation("app.cash.sqldelight:coroutines-extensions:$sqlDelightCoroutinesExtVersion")
             }
         }
         val commonTest by getting {
@@ -70,6 +71,8 @@ kotlin {
             iosSimulatorArm64Test.dependsOn(this)
         }
     }
+
+    jvmToolchain(17)
 }
 
 android {

@@ -34,17 +34,14 @@ import dev.andrew.prosto.repository.Coworking
 fun CoworkingItemView(coworking: Coworking, isSelected: Boolean) {
     Card(modifier = Modifier
         .padding(10.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(coworking.firmColor)),
+//        colors = CardDefaults.cardColors(
+//            containerColor = Color(coworking.firmColor)),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 10.dp)
     ) {
-//        val animatedScale = animateFloatAsState(targetValue = if (isSelected) 1f else 0.95f)
         Surface(
             modifier = Modifier
-                .animateContentSize()
-//                .scale(animatedScale.value)
-                ,
+                .animateContentSize(),
             shape = CardDefaults.shape
         ) {
             AsyncImage(modifier = Modifier
@@ -59,6 +56,7 @@ fun CoworkingItemView(coworking: Coworking, isSelected: Boolean) {
                 .height(44.dp)
                 .fillMaxWidth(),
             text = coworking.fullName,
+            color = Color.Black,
             fontSize = 29.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
