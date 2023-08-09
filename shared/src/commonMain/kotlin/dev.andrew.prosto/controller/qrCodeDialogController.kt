@@ -90,6 +90,7 @@ class QrCodeDialogContoller(
                     }
                 }
             }
+
             is QRDialogEvent.OnTurniketQRSelect -> {
                 if (state.selectedQRType != SelectedQRType.TURNIKET) {
                     updateState {
@@ -99,9 +100,10 @@ class QrCodeDialogContoller(
                             qrIsLoading = true
                         )
                     }
-                   loadTurniketQR()
+                    loadTurniketQR()
                 }
             }
+
             is QRDialogEvent.OnBackPressed -> navigator.navigateBack()
         }
     }

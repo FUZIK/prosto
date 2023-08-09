@@ -13,14 +13,16 @@ interface TicketTurniketKeyUseCase {
 class TicketTurniketKeyUseCaseImpl(
     private val ticketStore: TicketStore,
     private val ticketSource: ProstoTicketSource
-): TicketTurniketKeyUseCase {
+) : TicketTurniketKeyUseCase {
     override suspend fun getTurniketKey(coworking: Coworking, ticket: ProstoTicket): String? {
         if (ticket.qrDataTurniket == null) {
             ticketSource.getUniversalTurniketKey()?.let { key ->
                 if (ticket is VisitTicket) {
-                    ticketStore.addOrUpdate(coworking, ticket.copy(
-                        qrDataTurniket = key
-                    ))
+                    ticketStore.addOrUpdate(
+                        coworking, ticket.copy(
+                            qrDataTurniket = key
+                        )
+                    )
                     return key
                 } else {
                     // TODO VisitTicket нужно установить на все методы работающие с билетами для пропуска в коворкинг

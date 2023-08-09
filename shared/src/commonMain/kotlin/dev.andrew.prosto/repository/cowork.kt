@@ -31,7 +31,7 @@ interface CoworkingSource {
     fun getProsto(): List<Coworking>
 }
 
-class Cowork_LocalImpl: CoworkingSource {
+class Cowork_LocalImpl : CoworkingSource {
     internal companion object {
         val ORIGINAL = Coworking(
             id = 0,
@@ -101,8 +101,9 @@ class Cowork_LocalImpl: CoworkingSource {
             licenseRead = "районный коворкинг \n«на Грибоедова»"
         )
 
-        val ALL = listOf(ORIGINAL, MOSCOW,PRODUCTION, KALININSKIY, TO_SMART, GRIBICH)
+        val ALL = listOf(ORIGINAL, MOSCOW, PRODUCTION, KALININSKIY, TO_SMART, GRIBICH)
     }
+
     override fun getProsto(): List<Coworking> {
         return ALL
     }

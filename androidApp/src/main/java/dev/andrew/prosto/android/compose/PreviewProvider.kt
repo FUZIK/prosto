@@ -34,7 +34,7 @@ private val SS_COWORKING = Coworking(
     tumblrLink = "https://thumb.tildacdn.com/tild6239-6236-4431-b761-363462353965/-/format/webp/noroot.png",
     shortAddress = "наб. Карповки 5АК, 5 этаж",
     fullAddress = "Санкт-Петербург, наб. Карповки 5АК, 5 этаж",
-    metroStation= MetroStation.SPB_PETROGA,
+    metroStation = MetroStation.SPB_PETROGA,
     bitrixID = 167499,
     firmColor = 0xFFED0082,
     licenseRead = "филиал молодёжного пространства \n«ПРОСТО» – ПРОСТО.ORIGINAL"
@@ -53,15 +53,15 @@ val SSS_COWORKING = Coworking(
 )
 
 
-class CoworkingProvider: PreviewParameterProvider<Coworking> {
+class CoworkingProvider : PreviewParameterProvider<Coworking> {
     override val values = sequenceOf(S_COWORKING)
 }
 
-class CoworkingListProvider: PreviewParameterProvider<List<Coworking>> {
+class CoworkingListProvider : PreviewParameterProvider<List<Coworking>> {
     override val values = sequenceOf(listOf(S_COWORKING, SS_COWORKING, SSS_COWORKING))
 }
 
-class TicketListProvider: PreviewParameterProvider<List<ProstoTicket>> {
+class TicketListProvider : PreviewParameterProvider<List<ProstoTicket>> {
     override val values = sequenceOf(List(10) { i ->
         val date = NOW_DATE.plus(i, DateTimeUnit.DAY)
         VisitTicket(
@@ -89,6 +89,6 @@ class TicketListProvider: PreviewParameterProvider<List<ProstoTicket>> {
 //    qrDataTurniket = null
 //    )
 
-class TicketEmptyListProvider: PreviewParameterProvider<List<ProstoTicket>> {
+class TicketEmptyListProvider : PreviewParameterProvider<List<ProstoTicket>> {
     override val values = sequenceOf(emptyList<ProstoTicket>())
 }

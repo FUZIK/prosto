@@ -23,12 +23,14 @@ sealed interface ProstoTicket {
     val id: Long
     val date: LocalDate
     val qrDataProsto: String
+
     @Deprecated("All times null. Use getUniversalTurniketKey()")
     val qrDataTurniket: String?
     fun isActual(): Boolean =
         Clock.System.now().toLocalDateTime(kotlinx.datetime.TimeZone.UTC).let { now ->
             date >= now.date
         }
+
     fun isToday(): Boolean =
         Clock.System.now().toLocalDateTime(kotlinx.datetime.TimeZone.UTC).let { now ->
             now.date == date
@@ -61,7 +63,7 @@ data class VisitTicket(
     override val date: LocalDate = info.date,
     override val qrDataProsto: String,
     override val qrDataTurniket: String?
-): ProstoTicket
+) : ProstoTicket
 
 class CoworkTicketResult(
     val ticket: VisitTicket?,
@@ -83,7 +85,7 @@ interface ProstoTicketSource {
 
 class CoworkTicket_WebImpl(
     private val httpClient: HttpClient = ToporObject.prostoAuthHttpClient
-): ProstoTicketSource {
+) : ProstoTicketSource {
     companion object {
         private val ACTIVE_DATA_ATTR_REGEX = "data-active-events='(.*?)(?:'|\r\n)".toRegex()
         private val DATA_RG_KEY_ATTR_REGEX = "data-rg-key=[\"']([^'\"]*)".toRegex()
@@ -135,36 +137,45 @@ class CoworkTicket_WebImpl(
             val year = units.component3().toInt()
             return LocalDate(year, month, day)
         }
+
         private fun fromLocalDate(date: LocalDate): String {
             val dayStr = date.dayOfMonth.run {
-                if (this > 9) this.toString() else "0$this" }
+                if (this > 9) this.toString() else "0$this"
+            }
             val monthStr = date.monthNumber.run {
-                if (this > 9) this.toString() else "0$this" }
+                if (this > 9) this.toString() else "0$this"
+            }
             val year = date.year
             return "$dayStr.$monthStr.$year"
         }
     }
+
     private inner class BitrixCoworking(
         val bitrixID: Int,
         val dateList: List<BitrixCoworkDate>
     )
+
     private inner class BitrixCoworkDate(
         val rawDate: String,
         val pathFragment: String
     )
+
     private inner class TicketPageTime(
         val time: LocalTime,
         val isAvailable: Boolean
     )
+
     private inner class TicketPageForm(
         val userID: String,
         val eventID: String,
         val times: List<TicketPageTime>
     )
+
     private suspend fun requestCoworkingPage(): String {
         val response = httpClient.get(COWORKING_LINK)
         return response.bodyAsText()
     }
+
     private fun extractBitrixCoworkingList(coworkingPage: String): List<BitrixCoworking> {
         val match = ACTIVE_DATA_ATTR_REGEX.find(coworkingPage)
         val firstGroup = match?.groupValues?.getOrNull(1)
@@ -189,38 +200,54 @@ class CoworkTicket_WebImpl(
             return coworkingData.map { entry ->
                 BitrixCoworking(
                     bitrixID = entry.key,
-                    dateList = entry.value.map { BitrixCoworkDate(rawDate = it.key, pathFragment = it.value) }
+                    dateList = entry.value.map {
+                        BitrixCoworkDate(
+                            rawDate = it.key,
+                            pathFragment = it.value
+                        )
+                    }
                 )
             }
         }
         return emptyList()
     }
+
     private suspend fun requestBitrixPage(date: BitrixCoworkDate): String {
         val response = httpClient.get("https://xn--90azaccdibh.xn--p1ai/${date.pathFragment}")
         return response.bodyAsText()
     }
+
     private fun extractAvailableTimes(bitrixPage: String): List<Pair<AvailableTime, String>> {
         val result = ArrayList<Pair<AvailableTime, String>>(12)
         var clickNameIndex = 10 /* 10ый час - время открытия коворкинга */
         INPUT_ELEMENT_REGEX.findAll(bitrixPage).forEach { match ->
             val matchValue = match.value
             if (matchValue.contains(GROUP0)
-                && matchValue.contains("checkbox")) {
-                VALUE_ATTRIBUTE_REGEX.find(matchValue)?.groupValues?.getOrNull(1)?.also { inputValue ->
-                    LocalTime(hour = clickNameIndex, minute = 0).also { time ->
-                        val isAvailable = !matchValue.contains("disable")
-                        result.add(AvailableTime(time, isAvailable) to inputValue)
+                && matchValue.contains("checkbox")
+            ) {
+                VALUE_ATTRIBUTE_REGEX.find(matchValue)?.groupValues?.getOrNull(1)
+                    ?.also { inputValue ->
+                        LocalTime(hour = clickNameIndex, minute = 0).also { time ->
+                            val isAvailable = !matchValue.contains("disable")
+                            result.add(AvailableTime(time, isAvailable) to inputValue)
+                        }
+                        clickNameIndex++
                     }
-                    clickNameIndex++
-                }
             }
         }
         return result
     }
+
     private fun isSupportAttribute(bitrixPage: String, attribute: String): Boolean {
         return bitrixPage.contains("value=\"$attribute\"")
     }
-    private suspend fun postTicketForm(coworking: Coworking, bitrixPage: String, date: BitrixCoworkDate, info: TicketInfo): CoworkTicketResult {
+
+    private suspend fun postTicketForm(
+        coworking: Coworking,
+        bitrixPage: String,
+        date: BitrixCoworkDate,
+        info: TicketInfo
+    ): CoworkTicketResult {
         var userID: String? = null
         var eventID: String? = null
 
@@ -249,7 +276,11 @@ class CoworkTicket_WebImpl(
         val availableTimes = extractAvailableTimes(bitrixPage)
 
         if (availableTimes.isEmpty()) {
-            return CoworkTicketResult(ticket = null, error = "Unknown server times", isSuccess = false)
+            return CoworkTicketResult(
+                ticket = null,
+                error = "Unknown server times",
+                isSuccess = false
+            )
         }
 
         val hoursGroup = availableTimes.mapNotNull { time ->
@@ -330,7 +361,8 @@ class CoworkTicket_WebImpl(
     }
 
     private suspend fun fetchRgKey(): String? {
-        val response = httpClient.get("https://xn--90azaccdibh.xn--p1ai/auth/personal.php#user_div_recorded_coworking")
+        val response =
+            httpClient.get("https://xn--90azaccdibh.xn--p1ai/auth/personal.php#user_div_recorded_coworking")
         val html = response.bodyAsText()
         DATA_RG_KEY_ATTR_REGEX.find(html)?.also { result ->
             return result.groupValues.getOrNull(1)
@@ -343,7 +375,7 @@ class CoworkTicket_WebImpl(
         ticketInfo: TicketInfo
     ): CoworkTicketResult {
         requestCoworkingPage().also { coworkingPage ->
-            extractBitrixCoworkingList(coworkingPage).also { coworkingList->
+            extractBitrixCoworkingList(coworkingPage).also { coworkingList ->
                 val coworkingByID = coworkingList.firstOrNull { it.bitrixID == coworking.bitrixID }
                 if (coworkingByID != null && coworkingByID.dateList.isNotEmpty()) {
                     val strDate = fromLocalDate(ticketInfo.date)
@@ -358,6 +390,7 @@ class CoworkTicket_WebImpl(
         }
         return CoworkTicketResult(ticket = null, error = "Unknown error", isSuccess = false)
     }
+
     override suspend fun getAvailableDates(coworking: Coworking): List<LocalDate> {
         requestCoworkingPage().also { coworkingPage ->
             extractBitrixCoworkingList(coworkingPage).also { coworkingList ->
@@ -369,9 +402,13 @@ class CoworkTicket_WebImpl(
         }
         return emptyList()
     }
-    override suspend fun getAvailableTimes(coworking: Coworking, date: LocalDate): List<AvailableTime> {
+
+    override suspend fun getAvailableTimes(
+        coworking: Coworking,
+        date: LocalDate
+    ): List<AvailableTime> {
         requestCoworkingPage().also { coworkingPage ->
-            extractBitrixCoworkingList(coworkingPage).also { coworkingList->
+            extractBitrixCoworkingList(coworkingPage).also { coworkingList ->
                 val coworkingByID = coworkingList.firstOrNull { it.bitrixID == coworking.bitrixID }
                 if (coworkingByID != null && coworkingByID.dateList.isNotEmpty()) {
                     val strDate = fromLocalDate(date)

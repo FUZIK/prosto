@@ -43,38 +43,43 @@ import kotlinx.coroutines.delay
 
 object ToporObject {
     val navigator: ProstoNavigator by lazy(LazyThreadSafetyMode.NONE) {
-        ProstoNavigator() }
-
+        ProstoNavigator()
+    }
 
 
     val coworkingSource: CoworkingSource by lazy(LazyThreadSafetyMode.NONE) {
-        Cowork_LocalImpl() }
+        Cowork_LocalImpl()
+    }
 
     val ticketSource: ProstoTicketSource by lazy {
-        CoworkTicket_WebImpl() }
+        CoworkTicket_WebImpl()
+    }
 
     val authSource: AuthSource by lazy {
-        ProstoAuth_WebImpl() }
-
+        ProstoAuth_WebImpl()
+    }
 
 
     val userAuthLocalStore: UserAuthLocalStore by lazy {
-        UserAuthLocalStoreImpl(appDatabase.userSavesCanTableQueries) }
+        UserAuthLocalStoreImpl(appDatabase.userSavesCanTableQueries)
+    }
 
     val userSelectedCoworkingLocalStore: UserSelectedCoworkingLocalStore by lazy {
         UserSelectedCoworkingLocalStoreLocalStoreImpl(
             coworkingSource,
-            appDatabase.userSavesCanTableQueries)
+            appDatabase.userSavesCanTableQueries
+        )
     }
 
 
     val ticketStore: TicketStore by lazy {
-        TicketStoreImpl(appDatabase.ticketTableQueries) }
-
+        TicketStoreImpl(appDatabase.ticketTableQueries)
+    }
 
 
     val signInUseCase: SignInUseCase by lazy {
-        SignInUseCaseImpl(authSource, userAuthLocalStore) }
+        SignInUseCaseImpl(authSource, userAuthLocalStore)
+    }
 
     val createTicketUseCase: CreateTicketUseCase by lazy {
         CreateTicketUseCaseImpl(ticketStore, ticketSource)
@@ -97,7 +102,6 @@ object ToporObject {
     }
 
 
-
     private var sqlDriverFactory: DriverFactory? = null
 
     fun provideSqlDriver(driverFactory: DriverFactory) {
@@ -107,7 +111,6 @@ object ToporObject {
     private val appDatabase: AppDatabase by lazy {
         createDatabase(sqlDriverFactory!!)
     }
-
 
 
     val prostoAuthHttpClient: HttpClient by lazy {
@@ -132,7 +135,8 @@ object ToporObject {
             client.plugin(HttpSend).intercept { builder ->
                 val call = execute(builder)
                 if (builder.attributes.getOrNull(ProstoAuth_WebImpl.IS_AUTH_REQUEST) != true
-                    && ToporObject.isSignInRequiredUseCase.isSignInRequired()) {
+                    && ToporObject.isSignInRequiredUseCase.isSignInRequired()
+                ) {
                     ToporObject.navigator.navigateTo(
                         ProstoDestination.AuthDialog()
                     )
@@ -214,7 +218,8 @@ object ToporObject {
                     }
 
                     cookieStorage.get(call.request.url).forEach {
-                        builder.cookie(name = it.name,
+                        builder.cookie(
+                            name = it.name,
                             value = it.value,
                             maxAge = it.maxAge,
                             expires = it.expires,
@@ -222,7 +227,8 @@ object ToporObject {
                             path = it.path,
                             secure = it.secure,
                             httpOnly = it.httpOnly,
-                            extensions = it.extensions)
+                            extensions = it.extensions
+                        )
                     }
                     return@intercept execute(builder)
                 }

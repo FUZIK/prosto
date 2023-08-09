@@ -7,7 +7,7 @@ plugins {
 
 kotlin {
     android()
-    
+
     listOf(
         iosX64(),
         iosArm64(),
@@ -89,7 +89,8 @@ sqldelight {
         packageName = "dev.andrew.prosto"
         verifyMigrations = true
         schemaOutputDirectory = file("shared/src/commonMain/sqldelight/dev/andrew/prosto/schema")
-        migrationOutputDirectory = file("shared/src/commonMain/sqldelight/dev/andrew/prosto/migration")
+        migrationOutputDirectory =
+            file("shared/src/commonMain/sqldelight/dev/andrew/prosto/migration")
         migrationOutputFileFormat = ".sqm"
         dialect = "sqlite:3.25"
     }

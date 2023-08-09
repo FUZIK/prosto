@@ -60,7 +60,10 @@ fun MainScreen() {
 
     if (state.isCoworkingListLoading) {
         Box(Modifier.fillMaxSize()) {
-            ProstoLogo(Modifier.align(Alignment.Center).padding(10.dp))
+            ProstoLogo(
+                Modifier
+                    .align(Alignment.Center)
+                    .padding(10.dp))
             // TODO бага изза прогресса экран фризится
             //  здорово зарепортить или попытаться исправить прогресс
             //  https://github.com/material-components/material-components-android/issues/2355
@@ -82,7 +85,8 @@ fun MainScreen() {
             state = pagerState,
             orientation = Orientation.Horizontal,
             flingBehavior = flingBehavior,
-            reverseDirection = true)
+            reverseDirection = true
+        )
 
         Scaffold(
             topBar = {
@@ -90,7 +94,8 @@ fun MainScreen() {
                     list = state.coworkingList,
                     pagerState = pagerState,
                     flingBehavior = flingBehavior,
-                    pageNestedScrollConnection = pageNestedScrollConnection) {
+                    pageNestedScrollConnection = pageNestedScrollConnection
+                ) {
                     controller.emitEvent(MainScreenEvent.OnCoworkingSelect(coworking = it))
                 }
             },
@@ -102,16 +107,19 @@ fun MainScreen() {
                     },
                     containerColor = Color(coworking.firmColor)
                 ) {
-                    Text(text = "РЕ\nГА",
+                    Text(
+                        text = "РЕ\nГА",
                         fontSize = 25.sp,
                         fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center)
+                        textAlign = TextAlign.Center
+                    )
                 }
             },
             content = {
-                Box(modifier = Modifier
-                    .padding(it)
-                    .then(scrollableModifier)
+                Box(
+                    modifier = Modifier
+                        .padding(it)
+                        .then(scrollableModifier)
                 ) {
                     Column(modifier = Modifier.fillMaxSize()) {
                         val uriHandler = LocalUriHandler.current
@@ -119,19 +127,22 @@ fun MainScreen() {
                             runCatching {
                                 uriHandler.openUri("geo:0,0?q=${coworking.fullAddress}")
                             }
-                         }, coworking, metroColor)
+                        }, coworking, metroColor)
                         Box(
                             Modifier
                                 .fillMaxWidth()
-                                .weight(1f)) {
+                                .weight(1f)
+                        ) {
                             if (state.ticketListIsLoading) {
                                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                             } else {
                                 state.ticketListWithTodayIndex.let { ticketListWithTodayIndex ->
                                     if (ticketListWithTodayIndex.tickets.isEmpty()) {
-                                        EmptyTicketItem(modifier = Modifier
-                                            .fillMaxHeight(0.8f)
-                                            .align(Alignment.Center))
+                                        EmptyTicketItem(
+                                            modifier = Modifier
+                                                .fillMaxHeight(0.8f)
+                                                .align(Alignment.Center)
+                                        )
                                     } else {
                                         TicketListView(
                                             modifier = Modifier
@@ -140,7 +151,11 @@ fun MainScreen() {
                                             tickets = ticketListWithTodayIndex.tickets,
                                             initialFirstVisibleItemIndex = ticketListWithTodayIndex.indexOfTodayItem,
                                             onClick = { ticket ->
-                                                controller.emitEvent(MainScreenEvent.OnClickTicket(ticket = ticket))
+                                                controller.emitEvent(
+                                                    MainScreenEvent.OnClickTicket(
+                                                        ticket = ticket
+                                                    )
+                                                )
                                             }
                                         )
                                     }
@@ -150,13 +165,16 @@ fun MainScreen() {
                     }
                 }
             },
-            bottomBar = { Box {
-                    Text(modifier = Modifier
-                        .fillMaxWidth()
-                        .then(scrollableModifier),
+            bottomBar = {
+                Box {
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .then(scrollableModifier),
                         text = coworking.licenseRead,
                         textAlign = TextAlign.Center,
-                        color = Color.Gray)
+                        color = Color.Gray
+                    )
                 }
             }
         )

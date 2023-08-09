@@ -18,16 +18,23 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun LabeledColumn(label: String, content: @Composable () -> Unit) {
     Column {
-        Text(modifier = Modifier
-            .padding(vertical = 16.dp, horizontal = 2.dp),
+        Text(
+            modifier = Modifier
+                .padding(vertical = 16.dp, horizontal = 2.dp),
             text = label,
-            style = MaterialTheme.typography.labelLarge)
+            style = MaterialTheme.typography.labelLarge
+        )
         content()
     }
 }
 
 @Composable
-fun LabeledCheckBox(checked: Boolean, enabled: Boolean = true, label: String, onValueChange: (Boolean) -> Unit) {
+fun LabeledCheckBox(
+    checked: Boolean,
+    enabled: Boolean = true,
+    label: String,
+    onValueChange: (Boolean) -> Unit
+) {
     Row(
         Modifier
             .fillMaxWidth()
@@ -49,7 +56,9 @@ fun LabeledCheckBox(checked: Boolean, enabled: Boolean = true, label: String, on
             text = label,
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.padding(start = 16.dp),
-            color = if (enabled) Color.Unspecified else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+            color = if (enabled) Color.Unspecified else MaterialTheme.colorScheme.onSurface.copy(
+                alpha = 0.38f
+            )
         )
     }
 }

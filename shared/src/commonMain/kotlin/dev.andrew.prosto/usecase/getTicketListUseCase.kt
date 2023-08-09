@@ -11,7 +11,7 @@ class TicketListWithTodayIndex(
     val tickets: List<ProstoTicket>,
     val indexOfTodayItem: Int
 ) {
-    constructor(): this(tickets = emptyList(), indexOfTodayItem = 0)
+    constructor() : this(tickets = emptyList(), indexOfTodayItem = 0)
 }
 
 interface GetTicketListUseCase {
@@ -21,7 +21,7 @@ interface GetTicketListUseCase {
 
 class GetTicketListUseCaseImpl(
     private val ticketStore: TicketStore
-): GetTicketListUseCase {
+) : GetTicketListUseCase {
     override suspend fun getTicketList(coworking: Coworking): List<ProstoTicket> {
         return ticketStore.getTickets(coworking)
     }
@@ -33,7 +33,10 @@ class GetTicketListUseCaseImpl(
                 val nowUTCDate = Clock.System.now().toLocalDateTime(TimeZone.UTC).date
                 val todayTicket = sortedTicketList.indexOfFirst { it.date == nowUTCDate }
                 if (todayTicket != -1) {
-                    return TicketListWithTodayIndex(tickets = sortedTicketList, indexOfTodayItem = todayTicket)
+                    return TicketListWithTodayIndex(
+                        tickets = sortedTicketList,
+                        indexOfTodayItem = todayTicket
+                    )
                 }
             }
         }

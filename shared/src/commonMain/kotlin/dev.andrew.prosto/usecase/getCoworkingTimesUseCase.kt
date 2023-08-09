@@ -11,7 +11,7 @@ interface GetCoworkingTimesUseCase {
 
 class GetCoworkingTimesUseCaseImpl(
     private val ticketSource: ProstoTicketSource
-): GetCoworkingTimesUseCase {
+) : GetCoworkingTimesUseCase {
     override suspend fun getAvailableTimes(
         coworking: Coworking,
         date: LocalDate

@@ -12,6 +12,7 @@ object ScreenSize {
         configuration.screenHeightDp
         return configuration.screenHeightDp.dp
     }
+
     @Composable
     fun width(): Dp {
         val configuration = LocalConfiguration.current

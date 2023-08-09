@@ -19,6 +19,7 @@ class ProstoAuth_WebTest {
             password = ""
         )
     }
+
     private val authService = ProstoAuth_WebImpl()
 
     @Test

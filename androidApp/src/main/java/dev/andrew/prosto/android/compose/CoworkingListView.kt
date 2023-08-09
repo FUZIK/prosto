@@ -32,23 +32,27 @@ import dev.andrew.prosto.repository.Coworking
 
 @Composable
 fun CoworkingItemView(coworking: Coworking, isSelected: Boolean) {
-    Card(modifier = Modifier
-        .padding(10.dp),
+    Card(
+        modifier = Modifier
+            .padding(10.dp),
 //        colors = CardDefaults.cardColors(
 //            containerColor = Color(coworking.firmColor)),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 10.dp)
+            defaultElevation = 10.dp
+        )
     ) {
         Surface(
             modifier = Modifier
                 .animateContentSize(),
             shape = CardDefaults.shape
         ) {
-            AsyncImage(modifier = Modifier
-                .fillMaxHeight(0.3f),
+            AsyncImage(
+                modifier = Modifier
+                    .fillMaxHeight(0.3f),
                 model = coworking.tumblrLink,
                 contentDescription = "",
-                contentScale = ContentScale.Crop)
+                contentScale = ContentScale.Crop
+            )
         }
 
         Text(
@@ -60,19 +64,22 @@ fun CoworkingItemView(coworking: Coworking, isSelected: Boolean) {
             fontSize = 29.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
-            overflow = TextOverflow.Ellipsis)
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun CoworkingHorizontalListView(list: List<Coworking>,
-                                pagerState: PagerState = rememberPagerState(),
-                                flingBehavior: SnapFlingBehavior = PagerDefaults.flingBehavior(state = pagerState),
-                                pageNestedScrollConnection: NestedScrollConnection = PagerDefaults.pageNestedScrollConnection(
-                                    Orientation.Horizontal
-                                ),
-                                onSelect: (coworking: Coworking) -> Unit) {
+fun CoworkingHorizontalListView(
+    list: List<Coworking>,
+    pagerState: PagerState = rememberPagerState(),
+    flingBehavior: SnapFlingBehavior = PagerDefaults.flingBehavior(state = pagerState),
+    pageNestedScrollConnection: NestedScrollConnection = PagerDefaults.pageNestedScrollConnection(
+        Orientation.Horizontal
+    ),
+    onSelect: (coworking: Coworking) -> Unit
+) {
     LaunchedEffect(pagerState.currentPage) {
         onSelect(list[pagerState.currentPage])
     }

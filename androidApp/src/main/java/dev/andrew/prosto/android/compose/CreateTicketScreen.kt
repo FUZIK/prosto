@@ -34,7 +34,8 @@ import shimmerBackground
 @Composable
 fun CreateTicketScreen(coworking: Coworking) {
     val coroutineScope = rememberCoroutineScope()
-    val controller = remember(coroutineScope) { CreateTicketScreenController(coworking, coroutineScope) }
+    val controller =
+        remember(coroutineScope) { CreateTicketScreenController(coworking, coroutineScope) }
     val state by controller.state.collectAsState()
 
     Scaffold(
@@ -47,9 +48,12 @@ fun CreateTicketScreen(coworking: Coworking) {
                     IconButton(onClick = {
                         controller.emitEvent(TicketScreenEvent.OnBackPressed())
                     }) {
-                        Icon(imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "navigate to back")
-                }})
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "navigate to back"
+                        )
+                    }
+                })
         },
         bottomBar = {
             Surface(
@@ -60,10 +64,12 @@ fun CreateTicketScreen(coworking: Coworking) {
                     val visibleError = state.isTicketError != null
                     AnimatedVisibility(visible = visibleError) {
                         state.isTicketError?.also { isTicketError ->
-                            Text(modifier = Modifier.fillMaxWidth(),
+                            Text(
+                                modifier = Modifier.fillMaxWidth(),
                                 text = isTicketError,
                                 textAlign = TextAlign.Center,
-                                color = MaterialTheme.colorScheme.error)
+                                color = MaterialTheme.colorScheme.error
+                            )
                         }
                     }
 
@@ -112,7 +118,12 @@ fun CreateTicketScreen(coworking: Coworking) {
                         controller.emitEvent(TicketScreenEvent.OnTicketParamsChanged(ticketParams))
                     },
                     onSelectTime = { localTime, selected ->
-                        controller.emitEvent(TicketScreenEvent.OnTicketTimeChanged(localTime, selected))
+                        controller.emitEvent(
+                            TicketScreenEvent.OnTicketTimeChanged(
+                                localTime,
+                                selected
+                            )
+                        )
                     })
             }
         }
@@ -121,7 +132,11 @@ fun CreateTicketScreen(coworking: Coworking) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TicketCreateView(state: TicketScreenState, onParamChanged: (TicketParams) -> Unit, onSelectTime: (LocalTime, Boolean) -> Unit) {
+fun TicketCreateView(
+    state: TicketScreenState,
+    onParamChanged: (TicketParams) -> Unit,
+    onSelectTime: (LocalTime, Boolean) -> Unit
+) {
     val scrollState = rememberScrollState()
     val availableTimes = state.availableTimes
     val selectedTimes = state.selectedTimes
@@ -140,7 +155,8 @@ fun TicketCreateView(state: TicketScreenState, onParamChanged: (TicketParams) ->
                                     height = (32 + 16).dp
                                 )
                                 .padding(vertical = 8.dp)
-                                .shimmerBackground(FilterChipDefaults.shape))
+                                .shimmerBackground(FilterChipDefaults.shape)
+                        )
                     }
                 } else {
                     availableTimes.forEach { availableTime ->
@@ -162,41 +178,80 @@ fun TicketCreateView(state: TicketScreenState, onParamChanged: (TicketParams) ->
         }
         val selectedParams = state.selectedParams
         LabeledColumn(label = "цели") {
-            LabeledCheckBox(checked = selectedParams.isIndependentWork, label = "самостоятельная работа", onValueChange = {
-                onParamChanged(selectedParams.copy(isIndependentWork = it))
-            })
-            LabeledCheckBox(checked = selectedParams.isOrganizationRecreation, label = "организация собственного досуга (отдых)", onValueChange = {
-                onParamChanged(selectedParams.copy(isOrganizationRecreation = it))
-            })
-            LabeledCheckBox(checked = selectedParams.isIndependentProjectWork, label = "самостоятельная работа в рамках Проектной деятельности", onValueChange = {
-                onParamChanged(selectedParams.copy(isIndependentProjectWork = it))
-            })
+            LabeledCheckBox(
+                checked = selectedParams.isIndependentWork,
+                label = "самостоятельная работа",
+                onValueChange = {
+                    onParamChanged(selectedParams.copy(isIndependentWork = it))
+                })
+            LabeledCheckBox(
+                checked = selectedParams.isOrganizationRecreation,
+                label = "организация собственного досуга (отдых)",
+                onValueChange = {
+                    onParamChanged(selectedParams.copy(isOrganizationRecreation = it))
+                })
+            LabeledCheckBox(
+                checked = selectedParams.isIndependentProjectWork,
+                label = "самостоятельная работа в рамках Проектной деятельности",
+                onValueChange = {
+                    onParamChanged(selectedParams.copy(isIndependentProjectWork = it))
+                })
         }
         LabeledColumn(label = "техника") {
-            LabeledCheckBox(checked = selectedParams.noNeedAnyMachines, label = "не нужна орг. техника", onValueChange = {
-                onParamChanged(selectedParams.copy(noNeedAnyMachines = it))
-            })
-            LabeledCheckBox(checked = selectedParams.needKomp, enabled = !selectedParams.noNeedAnyMachines, label = "ноутбук (не доступно в ПРОСТО.Калиниский)", onValueChange = {
-                onParamChanged(selectedParams.copy(needKomp = it))
-            })
-            LabeledCheckBox(checked = selectedParams.needMFUPrinter, enabled = !selectedParams.noNeedAnyMachines, label = "принтер (МФУ)(не доступно в ПРОСТО.Калининский)", onValueChange = {
-                onParamChanged(selectedParams.copy(needMFUPrinter = it))
-            })
-            LabeledCheckBox(checked = selectedParams.needFlipchart, enabled = !selectedParams.noNeedAnyMachines, label = "флипчарт", onValueChange = {
-                onParamChanged(selectedParams.copy(needFlipchart = it))
-            })
-            LabeledCheckBox(checked = selectedParams.needLaminator, enabled = !selectedParams.noNeedAnyMachines, label = "ламинатор (доступно только в ПРОСТО.2SMART)", onValueChange = {
-                onParamChanged(selectedParams.copy(needLaminator = it))
-            })
-            LabeledCheckBox(checked = selectedParams.needStaplerBindingMachine, enabled = !selectedParams.noNeedAnyMachines, label = "брошюратор (доступно только в ПРОСТО.2SMART)", onValueChange = {
-                onParamChanged(selectedParams.copy(needStaplerBindingMachine = it))
-            })
-            LabeledCheckBox(checked = selectedParams.needOfficeSupplies, enabled = !selectedParams.noNeedAnyMachines, label = "расходные материалы (маркеры, ручки, бумага)", onValueChange = {
-                onParamChanged(selectedParams.copy(needOfficeSupplies = it))
-            })
+            LabeledCheckBox(
+                checked = selectedParams.noNeedAnyMachines,
+                label = "не нужна орг. техника",
+                onValueChange = {
+                    onParamChanged(selectedParams.copy(noNeedAnyMachines = it))
+                })
+            LabeledCheckBox(
+                checked = selectedParams.needKomp,
+                enabled = !selectedParams.noNeedAnyMachines,
+                label = "ноутбук (не доступно в ПРОСТО.Калиниский)",
+                onValueChange = {
+                    onParamChanged(selectedParams.copy(needKomp = it))
+                })
+            LabeledCheckBox(
+                checked = selectedParams.needMFUPrinter,
+                enabled = !selectedParams.noNeedAnyMachines,
+                label = "принтер (МФУ)(не доступно в ПРОСТО.Калининский)",
+                onValueChange = {
+                    onParamChanged(selectedParams.copy(needMFUPrinter = it))
+                })
+            LabeledCheckBox(
+                checked = selectedParams.needFlipchart,
+                enabled = !selectedParams.noNeedAnyMachines,
+                label = "флипчарт",
+                onValueChange = {
+                    onParamChanged(selectedParams.copy(needFlipchart = it))
+                })
+            LabeledCheckBox(
+                checked = selectedParams.needLaminator,
+                enabled = !selectedParams.noNeedAnyMachines,
+                label = "ламинатор (доступно только в ПРОСТО.2SMART)",
+                onValueChange = {
+                    onParamChanged(selectedParams.copy(needLaminator = it))
+                })
+            LabeledCheckBox(
+                checked = selectedParams.needStaplerBindingMachine,
+                enabled = !selectedParams.noNeedAnyMachines,
+                label = "брошюратор (доступно только в ПРОСТО.2SMART)",
+                onValueChange = {
+                    onParamChanged(selectedParams.copy(needStaplerBindingMachine = it))
+                })
+            LabeledCheckBox(
+                checked = selectedParams.needOfficeSupplies,
+                enabled = !selectedParams.noNeedAnyMachines,
+                label = "расходные материалы (маркеры, ручки, бумага)",
+                onValueChange = {
+                    onParamChanged(selectedParams.copy(needOfficeSupplies = it))
+                })
         }
         LabeledColumn("дополнительно") {
-            LabeledCheckBox(checked = selectedParams.needTemporaryStorage,  label ="шкафчик для временного хранения") {
+            LabeledCheckBox(
+                checked = selectedParams.needTemporaryStorage,
+                label = "шкафчик для временного хранения"
+            ) {
                 onParamChanged(selectedParams.copy(needTemporaryStorage = it))
             }
         }

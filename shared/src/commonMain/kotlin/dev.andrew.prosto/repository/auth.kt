@@ -36,7 +36,7 @@ interface AuthSource {
 
 class ProstoAuth_WebImpl(
     private val httpClient: HttpClient = ToporObject.prostoAuthHttpClient
-): AuthSource {
+) : AuthSource {
     companion object {
         val IS_AUTH_REQUEST = AttributeKey<Boolean>("isAuthRequest")
         val PHPSESSID_REGEX = Regex("PHPSESSID=(.*?)(?:;|)")
@@ -70,6 +70,7 @@ class ProstoAuth_WebImpl(
                     return false
                 }
             }
+
             HttpStatusCode.Found -> {
                 return false
             }

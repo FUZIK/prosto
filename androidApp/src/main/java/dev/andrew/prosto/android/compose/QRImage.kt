@@ -16,6 +16,7 @@ object QRGenCache {
     fun getCache(data: String): ImageBitmap? {
         return cache.getOrDefault(data, null)
     }
+
     fun addCache(data: String, bitmap: ImageBitmap) {
         cache.put(data, bitmap)
     }
@@ -23,24 +24,28 @@ object QRGenCache {
 
 @Composable
 fun QRImage(modifier: Modifier = Modifier, data: String) {
-        QRGenCache.getCache(data).let { cachedBitmap ->
-            val bitmapToDraw = if (cachedBitmap == null) {
-                val qrCodeNative = QRCode(data = data,
-                    dataType = QRCodeDataType.DEFAULT)
-                    .render(
-                        brightColor = 0x00FFFFFF
-                    )
-                    .nativeImage()
-                (qrCodeNative as Bitmap).asImageBitmap().also {
-                    QRGenCache.addCache(data, it)
-                }
-            } else {
-                cachedBitmap
+    QRGenCache.getCache(data).let { cachedBitmap ->
+        val bitmapToDraw = if (cachedBitmap == null) {
+            val qrCodeNative = QRCode(
+                data = data,
+                dataType = QRCodeDataType.DEFAULT
+            )
+                .render(
+                    brightColor = 0x00FFFFFF
+                )
+                .nativeImage()
+            (qrCodeNative as Bitmap).asImageBitmap().also {
+                QRGenCache.addCache(data, it)
             }
-            Image(modifier = modifier,
-                bitmap = bitmapToDraw,
-                contentDescription = "")
+        } else {
+            cachedBitmap
         }
+        Image(
+            modifier = modifier,
+            bitmap = bitmapToDraw,
+            contentDescription = ""
+        )
+    }
 }
 
 @Preview

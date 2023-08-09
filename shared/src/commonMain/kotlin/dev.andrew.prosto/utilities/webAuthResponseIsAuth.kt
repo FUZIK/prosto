@@ -52,7 +52,9 @@ fun getSessionIdFromHeaders(response: HttpResponse): String? {
                 cookieHeaders.firstOrNull { cookieHeader ->
                     cookieHeader.contains("PHPSESSID")
                 }?.let { phpSessionHeader ->
-                    ProstoAuth_WebImpl.PHPSESSID_REGEX.find(phpSessionHeader)?.groupValues?.getOrNull(1)
+                    ProstoAuth_WebImpl.PHPSESSID_REGEX.find(phpSessionHeader)?.groupValues?.getOrNull(
+                        1
+                    )
                 }
             }
         }
@@ -90,6 +92,7 @@ suspend fun isWebAuthResponseResult(response: HttpResponse): AuthResult {
                 )
             }
         }
+
         HttpStatusCode.Found -> {
             /* First auth */
             return AuthResult(

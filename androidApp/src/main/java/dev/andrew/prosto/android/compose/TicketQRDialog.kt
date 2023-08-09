@@ -76,17 +76,21 @@ fun TicketQRDialog(
                     Modifier
                         .then(qrImageModifier ?: Modifier)
                         .align(Alignment.CenterHorizontally)
-                        .padding(qrPadding)) {
+                        .padding(qrPadding)
+                ) {
                     if (state.isTurnpikeQRUnavailableNow) {
                         Box(Modifier.fillMaxSize()) {
-                            Text(modifier = Modifier
-                                .align(Alignment.Center),
-                                text = "QR код будет доступен в интервале выбраного времени. Для новых броней время синхронизации может занять до 10 минут")
+                            Text(
+                                modifier = Modifier
+                                    .align(Alignment.Center),
+                                text = "QR код будет доступен в интервале выбраного времени. Для новых броней время синхронизации может занять до 10 минут"
+                            )
                         }
                     } else {
                         CircularProgressIndicator(
                             Modifier
-                                .fillMaxSize())
+                                .fillMaxSize()
+                        )
                     }
                 }
             } else {

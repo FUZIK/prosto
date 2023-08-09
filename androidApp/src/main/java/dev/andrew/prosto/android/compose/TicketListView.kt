@@ -33,19 +33,23 @@ import dev.andrew.prosto.utilities.humanDayRelativeFormat
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun TicketListView(modifier: Modifier = Modifier,
-                   tickets: List<ProstoTicket>,
-                   initialFirstVisibleItemIndex: Int,
-                   onClick: (ProstoTicket) -> Unit) {
+fun TicketListView(
+    modifier: Modifier = Modifier,
+    tickets: List<ProstoTicket>,
+    initialFirstVisibleItemIndex: Int,
+    onClick: (ProstoTicket) -> Unit
+) {
     val state = rememberSaveable(initialFirstVisibleItemIndex, saver = LazyListState.Saver) {
         LazyListState(
             initialFirstVisibleItemIndex, 0
         )
     }
     val flingBehavior = rememberSnapFlingBehavior(lazyListState = state)
-    LazyRow(modifier = modifier.fillMaxSize(),
+    LazyRow(
+        modifier = modifier.fillMaxSize(),
         state = state,
-        flingBehavior = flingBehavior) {
+        flingBehavior = flingBehavior
+    ) {
         itemsIndexed(items = tickets) { i, ticket ->
             Spacer(modifier = Modifier.fillParentMaxWidth(0.05f))
 
@@ -59,27 +63,34 @@ fun TicketListView(modifier: Modifier = Modifier,
                 Box(
                     Modifier
                         .weight(1f)
-                        .wrapContentSize()) {
-                    Column(modifier = Modifier
-                        .fillMaxWidth()
-                        .align(Alignment.Center)) {
+                        .wrapContentSize()
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.Center)
+                    ) {
                         Text(
                             modifier = Modifier
                                 .align(Alignment.CenterHorizontally),
                             text = "талон на",
                             style = MaterialTheme.typography.headlineLarge,
-                            textAlign = TextAlign.Center)
+                            textAlign = TextAlign.Center
+                        )
                         Text(
                             modifier = Modifier
                                 .align(Alignment.CenterHorizontally),
                             text = ticket.date.humanDayRelativeFormat(),
                             style = MaterialTheme.typography.headlineLarge,
-                            textAlign = TextAlign.Center)
+                            textAlign = TextAlign.Center
+                        )
                         if (ticket.isToday()) {
-                            Icon(modifier = Modifier
-                                .fillParentMaxSize()
-                                .align(Alignment.CenterHorizontally),
-                                imageVector = Icons.Filled.QrCodeScanner, contentDescription = "")
+                            Icon(
+                                modifier = Modifier
+                                    .fillParentMaxSize()
+                                    .align(Alignment.CenterHorizontally),
+                                imageVector = Icons.Filled.QrCodeScanner, contentDescription = ""
+                            )
                         }
                     }
                 }
@@ -93,37 +104,50 @@ fun TicketListView(modifier: Modifier = Modifier,
 
 @Composable
 fun EmptyTicketItem(modifier: Modifier = Modifier) {
-    Card(modifier = modifier
-        .fillMaxWidth(0.9f)) {
-            Box(Modifier.fillMaxSize()) {
-                Column(Modifier
-                    .align(Alignment.Center)) {
-                    Row(Modifier
-                        .align(Alignment.CenterHorizontally)) {
-                        val qrModifier = Modifier.size(88.dp)
-                        Image(modifier = qrModifier
+    Card(
+        modifier = modifier
+            .fillMaxWidth(0.9f)
+    ) {
+        Box(Modifier.fillMaxSize()) {
+            Column(
+                Modifier
+                    .align(Alignment.Center)
+            ) {
+                Row(
+                    Modifier
+                        .align(Alignment.CenterHorizontally)
+                ) {
+                    val qrModifier = Modifier.size(88.dp)
+                    Image(
+                        modifier = qrModifier
                             .offset(x = 15.dp, y = 15.dp)
                             .rotate(-30f),
-                            colorFilter = ColorFilter.tint(Color(0xFF6F797A)),
-                            imageVector = Icons.Filled.QrCode,
-                            contentDescription = "")
-                        Image(modifier = qrModifier,
-                            colorFilter = ColorFilter.tint(Color(0xFF6F797A)),
-                            imageVector = Icons.Filled.QrCode,
-                            contentDescription = "")
-                        Image(modifier = qrModifier
+                        colorFilter = ColorFilter.tint(Color(0xFF6F797A)),
+                        imageVector = Icons.Filled.QrCode,
+                        contentDescription = ""
+                    )
+                    Image(
+                        modifier = qrModifier,
+                        colorFilter = ColorFilter.tint(Color(0xFF6F797A)),
+                        imageVector = Icons.Filled.QrCode,
+                        contentDescription = ""
+                    )
+                    Image(
+                        modifier = qrModifier
                             .offset(x = -15.dp, y = 15.dp)
                             .rotate(30f),
-                            colorFilter = ColorFilter.tint(Color(0xFF6F797A)),
-                            imageVector = Icons.Filled.QrCode,
-                            contentDescription = "")
-                    }
-                    Text(modifier = Modifier
-                        .align(Alignment.CenterHorizontally),
-                        text = "Ой! Пусто" // text = "(ㆆ_ㆆ)"
+                        colorFilter = ColorFilter.tint(Color(0xFF6F797A)),
+                        imageVector = Icons.Filled.QrCode,
+                        contentDescription = ""
                     )
                 }
+                Text(
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally),
+                    text = "Ой! Пусто" // text = "(ㆆ_ㆆ)"
+                )
             }
+        }
     }
 }
 

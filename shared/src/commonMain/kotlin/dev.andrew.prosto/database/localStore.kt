@@ -28,7 +28,7 @@ interface UserSelectedCoworkingLocalStore {
 class UserSelectedCoworkingLocalStoreLocalStoreImpl(
     private val coworkingSource: CoworkingSource,
     private val userSavesCanTableQueries: UserSavesCanTableQueries
-): UserSelectedCoworkingLocalStore {
+) : UserSelectedCoworkingLocalStore {
     override suspend fun getCoworking(): Coworking? {
         return userSavesCanTableQueries.selectCoworkingId().executeAsOneOrNull()?.run {
             selectedCoworkingId?.toInt()?.let { selectedCoworkingId ->
@@ -45,7 +45,7 @@ class UserSelectedCoworkingLocalStoreLocalStoreImpl(
 
 class UserAuthLocalStoreImpl(
     private val userSavesCanTableQueries: UserSavesCanTableQueries
-): UserAuthLocalStore {
+) : UserAuthLocalStore {
     override var savedCredits: AuthCredits?
         get() {
             return userSavesCanTableQueries.selectAuthCredits().executeAsOneOrNull()?.run {
@@ -61,7 +61,7 @@ class UserAuthLocalStoreImpl(
 
 class TicketStoreImpl(
     private val ticketTableQueries: TicketTableQueries
-): TicketStore {
+) : TicketStore {
     override suspend fun getTickets(coworking: Coworking): List<VisitTicket> {
         return ticketTableQueries.selectByCoworkingId(coworkingId = coworking.id.toLong()) { id, _, epochDays, qrDataProsto, qrDataTurniket ->
             val info = TicketInfo(
@@ -69,7 +69,12 @@ class TicketStoreImpl(
                 times = emptyList(),
                 params = TicketParams()
             )
-            VisitTicket(id = id, info = info, qrDataProsto = qrDataProsto, qrDataTurniket = qrDataTurniket)
+            VisitTicket(
+                id = id,
+                info = info,
+                qrDataProsto = qrDataProsto,
+                qrDataTurniket = qrDataTurniket
+            )
         }.executeAsList()
     }
 
@@ -79,7 +84,8 @@ class TicketStoreImpl(
             coworkingId = coworking.id.toLong(),
             epochDays = ticket.date.toEpochDays().toLong(),
             qrDataProsto = ticket.qrDataProsto,
-            qrDataTurniket = ticket.qrDataTurniket)
+            qrDataTurniket = ticket.qrDataTurniket
+        )
     }
 }
 

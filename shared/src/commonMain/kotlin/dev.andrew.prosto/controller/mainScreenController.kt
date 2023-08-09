@@ -25,19 +25,20 @@ data class MainScreenState(
     val ticketListWithTodayIndex: TicketListWithTodayIndex,
     val isCoworkingListLoading: Boolean
 ) {
-    constructor(): this(
+    constructor() : this(
         coworking = null,
         coworkingIndex = 0,
         coworkingList = emptyList(),
         ticketListIsLoading = false,
         ticketListWithTodayIndex = TicketListWithTodayIndex(),
-        isCoworkingListLoading = false)
+        isCoworkingListLoading = false
+    )
 }
 
 sealed interface MainScreenEvent {
-    class OnCoworkingSelect(val coworking: Coworking): MainScreenEvent
-    class OnClickTicketCreate: MainScreenEvent
-    class OnClickTicket(val ticket: ProstoTicket): MainScreenEvent
+    class OnCoworkingSelect(val coworking: Coworking) : MainScreenEvent
+    class OnClickTicketCreate : MainScreenEvent
+    class OnClickTicket(val ticket: ProstoTicket) : MainScreenEvent
 }
 
 class MainScreenController(
@@ -46,7 +47,7 @@ class MainScreenController(
     coworkingSource: CoworkingSource = ToporObject.coworkingSource,
     private val getTicketListUseCase: GetTicketListUseCase = ToporObject.getTicketListUseCase,
     private val userSelectedCoworkingLocalStore: UserSelectedCoworkingLocalStore = ToporObject.userSelectedCoworkingLocalStore,
-): StateUIController<MainScreenState, MainScreenEvent>(initial = MainScreenState()) {
+) : StateUIController<MainScreenState, MainScreenEvent>(initial = MainScreenState()) {
     private val loadTicketListScope = coroutineScope + Job()
     private val localStoreScope = coroutineScope + Job()
 
@@ -57,15 +58,16 @@ class MainScreenController(
         }
         println("updateState ticketListIsLoading = true")
         loadTicketListScope.launch {
-            getTicketListUseCase.getTicketListWithTodayIndex(state.value.coworking!!).also { ticketListWithTodayIndex ->
-                updateState {
-                    copy(
-                        ticketListWithTodayIndex = ticketListWithTodayIndex,
-                        ticketListIsLoading = false
-                    )
+            getTicketListUseCase.getTicketListWithTodayIndex(state.value.coworking!!)
+                .also { ticketListWithTodayIndex ->
+                    updateState {
+                        copy(
+                            ticketListWithTodayIndex = ticketListWithTodayIndex,
+                            ticketListIsLoading = false
+                        )
+                    }
+                    println("updateState ticketListIsLoading = false")
                 }
-                println("updateState ticketListIsLoading = false")
-            }
         }
     }
 
@@ -96,7 +98,8 @@ class MainScreenController(
                         coworking = selected,
                         coworkingIndex = indexOrZero,
                         coworkingList = list,
-                        isCoworkingListLoading = false)
+                        isCoworkingListLoading = false
+                    )
                 }
                 loadTicketList()
                 println("updateState isCoworkingListLoading = false")
@@ -117,12 +120,20 @@ class MainScreenController(
                     }
                 }
             }
+
             is MainScreenEvent.OnClickTicketCreate -> {
                 navigator.navigateTo(
-                    ProstoDestination.CreateTicketScreen(state.coworking!!))
+                    ProstoDestination.CreateTicketScreen(state.coworking!!)
+                )
             }
+
             is MainScreenEvent.OnClickTicket -> {
-                navigator.navigateTo(ProstoDestination.TicketQRDialog(coworking = state.coworking!!, ticket = event.ticket))
+                navigator.navigateTo(
+                    ProstoDestination.TicketQRDialog(
+                        coworking = state.coworking!!,
+                        ticket = event.ticket
+                    )
+                )
             }
         }
     }

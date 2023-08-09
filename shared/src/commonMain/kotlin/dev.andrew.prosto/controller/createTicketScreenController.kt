@@ -34,7 +34,7 @@ data class TicketScreenState(
     val selectedTimes: List<LocalTime>,
     val selectedParams: TicketParams
 ) {
-    constructor(coworking: Coworking): this(
+    constructor(coworking: Coworking) : this(
         coworking = coworking,
         isTimesLoading = true,
         isParamsLoading = false,
@@ -49,11 +49,11 @@ data class TicketScreenState(
 }
 
 sealed interface TicketScreenEvent {
-    class OnTicketDateChanged(val ticketDate: TicketScreenDate): TicketScreenEvent
-    class OnTicketTimeChanged(val time: LocalTime, val selected: Boolean): TicketScreenEvent
-    class OnTicketParamsChanged(val selectedParams: TicketParams): TicketScreenEvent
-    class OnRegisterClick: TicketScreenEvent
-    class OnBackPressed: TicketScreenEvent
+    class OnTicketDateChanged(val ticketDate: TicketScreenDate) : TicketScreenEvent
+    class OnTicketTimeChanged(val time: LocalTime, val selected: Boolean) : TicketScreenEvent
+    class OnTicketParamsChanged(val selectedParams: TicketParams) : TicketScreenEvent
+    class OnRegisterClick : TicketScreenEvent
+    class OnBackPressed : TicketScreenEvent
 }
 
 enum class TicketScreenDate {
@@ -68,7 +68,7 @@ class CreateTicketScreenController(
     private val getCoworkingTimesUseCase: GetCoworkingTimesUseCase = ToporObject.getCoworkingTimesUseCase,
     private val createTicketUseCase: CreateTicketUseCase = ToporObject.createTicketUseCase,
     private val navigator: ProstoNavigator = ToporObject.navigator
-): StateUIController<TicketScreenState, TicketScreenEvent>(TicketScreenState(coworking = coworking)) {
+) : StateUIController<TicketScreenState, TicketScreenEvent>(TicketScreenState(coworking = coworking)) {
     private val loadAvailableTimesScope = coroutineScope + Job()
 
     private fun reloadAvailableTimes() {
@@ -78,7 +78,8 @@ class CreateTicketScreenController(
             state.value.also { aState ->
                 getCoworkingTimesUseCase.getAvailableTimes(
                     coworking = aState.coworking,
-                    date = ticketDateDescriptor(aState.ticketDate)).also {
+                    date = ticketDateDescriptor(aState.ticketDate)
+                ).also {
                     setState(state.value.copy(availableTimes = it, isTimesLoading = false))
                 }
             }
@@ -102,10 +103,13 @@ class CreateTicketScreenController(
 
     private fun registerTicket() {
         state.value.also { aState ->
-            setState(aState.copy(
-                isTicketError = null,
-                isTicketInProgress = true,
-                isTicketButtonEnabled = false))
+            setState(
+                aState.copy(
+                    isTicketError = null,
+                    isTicketInProgress = true,
+                    isTicketButtonEnabled = false
+                )
+            )
             val validTimes = aState.availableTimes
                 .filter { it.isAvailable }
                 .map { it.time }
@@ -115,21 +119,29 @@ class CreateTicketScreenController(
             val ticketInfo = TicketInfo(
                 date = ticketDateDescriptor(aState.ticketDate),
                 times = validTimes,
-                params = aState.selectedParams)
+                params = aState.selectedParams
+            )
             coroutineScope.launch {
                 val result = createTicketUseCase.createTicket(
-                    coworking = aState.coworking, ticketInfo = ticketInfo)
+                    coworking = aState.coworking, ticketInfo = ticketInfo
+                )
                 state.value.also { aState ->
                     if (result.isSuccess) {
-                        setState(aState.copy(
-                            isTicketInProgress = false,
-                            isTicketButtonEnabled = true))
+                        setState(
+                            aState.copy(
+                                isTicketInProgress = false,
+                                isTicketButtonEnabled = true
+                            )
+                        )
                         navigator.navigateBack()
                     } else {
-                        setState(aState.copy(
-                            isTicketError = result.error,
-                            isTicketInProgress = false,
-                            isTicketButtonEnabled = true))
+                        setState(
+                            aState.copy(
+                                isTicketError = result.error,
+                                isTicketInProgress = false,
+                                isTicketButtonEnabled = true
+                            )
+                        )
                     }
                 }
             }
@@ -138,16 +150,18 @@ class CreateTicketScreenController(
 
     private fun updateTicketButtonState() {
         state.value.also { aState ->
-            setState(aState.copy(
-                isTicketButtonEnabled =
-                aState.selectedTimes.isNotEmpty()
-                        && aState.availableTimes.isNotEmpty()
-            ))
+            setState(
+                aState.copy(
+                    isTicketButtonEnabled =
+                    aState.selectedTimes.isNotEmpty()
+                            && aState.availableTimes.isNotEmpty()
+                )
+            )
         }
     }
 
     override fun reduce(state: TicketScreenState, event: TicketScreenEvent) {
-        when(event) {
+        when (event) {
             is TicketScreenEvent.OnTicketDateChanged -> {
                 if (state.ticketDate != event.ticketDate) {
                     setState(state.copy(ticketDate = event.ticketDate))
@@ -155,28 +169,37 @@ class CreateTicketScreenController(
                 }
                 updateTicketButtonState()
             }
+
             is TicketScreenEvent.OnTicketParamsChanged -> {
                 setState(state.copy(selectedParams = event.selectedParams))
                 updateTicketButtonState()
             }
+
             is TicketScreenEvent.OnTicketTimeChanged -> {
                 val selectedTimes = state.selectedTimes
                 if (selectedTimes.contains(event.time)) {
                     if (!event.selected) {
-                        setState(state.copy(
-                            selectedTimes = selectedTimes.filter { it != event.time }))
+                        setState(
+                            state.copy(
+                                selectedTimes = selectedTimes.filter { it != event.time })
+                        )
                     }
                 } else {
                     if (event.selected) {
-                        setState(state.copy(
-                            selectedTimes = selectedTimes.plus(event.time)))
+                        setState(
+                            state.copy(
+                                selectedTimes = selectedTimes.plus(event.time)
+                            )
+                        )
                     }
                 }
                 updateTicketButtonState()
             }
+
             is TicketScreenEvent.OnRegisterClick -> {
                 registerTicket()
             }
+
             is TicketScreenEvent.OnBackPressed -> {
                 navigator.navigateBack()
             }

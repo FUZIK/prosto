@@ -66,24 +66,30 @@ class MainActivity : ComponentActivity() {
                 val dest: ProstoDestination.TicketQRDialog = args.get()
                 TicketQRDialog(
                     coworking = dest.coworking,
-                    ticket = dest.ticket)
+                    ticket = dest.ticket
+                )
             }
         )
+
         init {
             ToporObject.navigator.onDestinationChanged = { destination ->
                 when (destination) {
                     is ProstoDestination.MainScreen -> {
                         router.addComponent(componentMainScreen)
                     }
+
                     is ProstoDestination.AuthDialog -> {
                         router.addChild(childAuthDialog)
                     }
+
                     is ProstoDestination.CreateTicketScreen -> {
                         router.addComponent(componentCreateTicket, destination.coworking)
                     }
+
                     is ProstoDestination.TicketQRDialog -> {
                         router.addChild(componentTicketQRDialog, destination)
                     }
+
                     else -> {}
                 }
             }
@@ -111,7 +117,8 @@ class MainActivity : ComponentActivity() {
                         exitTransition = scaleOut(
                             targetScale = .90f,
                             animationSpec = tween(easing = LinearEasing)
-                        ) + fadeOut())
+                        ) + fadeOut()
+                    )
                 }
             }
         }
