@@ -29,7 +29,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import dev.andrew.prosto.*
 import dev.andrew.prosto.repository.ProstoTicket
-import dev.andrew.prosto.utilities.localFormat
+import dev.andrew.prosto.utilities.humanDayRelativeFormat
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -72,7 +72,7 @@ fun TicketListView(modifier: Modifier = Modifier,
                         Text(
                             modifier = Modifier
                                 .align(Alignment.CenterHorizontally),
-                            text = ticket.date.localFormat(),
+                            text = ticket.date.humanDayRelativeFormat(),
                             style = MaterialTheme.typography.headlineLarge,
                             textAlign = TextAlign.Center)
                         if (ticket.isToday()) {
