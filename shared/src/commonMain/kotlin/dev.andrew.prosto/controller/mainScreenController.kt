@@ -1,10 +1,10 @@
 package dev.andrew.prosto.controller
 
-import dev.andrew.prosto.navigation.ProstoDestination
-import dev.andrew.prosto.navigation.ProstoNavigator
 import dev.andrew.prosto.StateUIController
 import dev.andrew.prosto.ToporObject
 import dev.andrew.prosto.database.UserSelectedCoworkingLocalStore
+import dev.andrew.prosto.navigation.ProstoDestination
+import dev.andrew.prosto.navigation.ProstoNavigator
 import dev.andrew.prosto.repository.Coworking
 import dev.andrew.prosto.repository.CoworkingSource
 import dev.andrew.prosto.repository.ProstoTicket

@@ -5,7 +5,6 @@ import dev.andrew.prosto.ToporObject
 import dev.andrew.prosto.navigation.ProstoNavigator
 import dev.andrew.prosto.repository.Coworking
 import dev.andrew.prosto.repository.ProstoTicket
-import dev.andrew.prosto.repository.ProstoTicketSource
 import dev.andrew.prosto.updateState
 import dev.andrew.prosto.usecase.TicketTurniketKeyUseCase
 import kotlinx.coroutines.CoroutineScope

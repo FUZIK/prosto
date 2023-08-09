@@ -23,15 +23,14 @@ import androidx.compose.ui.unit.dp
 import com.alphicc.brick.AndroidAnimatedComponentsContainer
 import com.alphicc.brick.Component
 import com.alphicc.brick.TreeRouter
-import dev.andrew.prosto.navigation.ProstoDestination
 import dev.andrew.prosto.ProstoTheme
 import dev.andrew.prosto.ToporObject
 import dev.andrew.prosto.android.compose.CreateTicketScreen
 import dev.andrew.prosto.android.compose.MainScreen
 import dev.andrew.prosto.android.compose.SignInViewDialog
 import dev.andrew.prosto.android.compose.TicketQRDialog
+import dev.andrew.prosto.navigation.ProstoDestination
 import dev.andrew.prosto.repository.Coworking
-import dev.andrew.prosto.repository.ProstoTicket
 
 class MainActivity : ComponentActivity() {
     private companion object {

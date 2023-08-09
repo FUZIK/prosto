@@ -39,7 +39,6 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.plugin
 import io.ktor.client.request.cookie
 import io.ktor.client.request.header
-import io.ktor.util.AttributeKey
 import kotlinx.coroutines.delay
 
 object ToporObject {

@@ -1,6 +1,5 @@
 package dev.andrew.prosto.usecase
 
-import dev.andrew.prosto.ToporObject
 import dev.andrew.prosto.database.TicketStore
 import dev.andrew.prosto.repository.Coworking
 import dev.andrew.prosto.repository.ProstoTicket

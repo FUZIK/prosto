@@ -1,10 +1,9 @@
 package dev.andrew.prosto.controller
 
-import dev.andrew.prosto.navigation.ProstoDestination
-import dev.andrew.prosto.navigation.ProstoNavigator
 import dev.andrew.prosto.StateUIController
 import dev.andrew.prosto.ToporObject
 import dev.andrew.prosto.database.UserAuthLocalStore
+import dev.andrew.prosto.navigation.ProstoNavigator
 import dev.andrew.prosto.repository.AuthCredits
 import dev.andrew.prosto.updateState
 import dev.andrew.prosto.usecase.SignInError
