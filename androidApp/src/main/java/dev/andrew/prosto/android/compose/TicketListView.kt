@@ -5,9 +5,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material.icons.filled.QrCodeScanner
@@ -17,7 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -35,9 +35,13 @@ import dev.andrew.prosto.utilities.localFormat
 @Composable
 fun TicketListView(modifier: Modifier = Modifier,
                    tickets: List<ProstoTicket>,
-                   initialFirstVisibleItemIndex: Int = 0,
+                   initialFirstVisibleItemIndex: Int,
                    onClick: (ProstoTicket) -> Unit) {
-    val state = rememberLazyListState(initialFirstVisibleItemIndex = initialFirstVisibleItemIndex)
+    val state = rememberSaveable(initialFirstVisibleItemIndex, saver = LazyListState.Saver) {
+        LazyListState(
+            initialFirstVisibleItemIndex, 0
+        )
+    }
     val flingBehavior = rememberSnapFlingBehavior(lazyListState = state)
     LazyRow(modifier = modifier.fillMaxSize(),
         state = state,
@@ -45,7 +49,13 @@ fun TicketListView(modifier: Modifier = Modifier,
         itemsIndexed(items = tickets) { i, ticket ->
             Spacer(modifier = Modifier.fillParentMaxWidth(0.05f))
 
-            val cardContent: @Composable ColumnScope.() -> Unit = {
+            OutlinedCard(
+                Modifier
+                    .fillParentMaxWidth(0.9f)
+                    .fillParentMaxHeight(1f)
+                    .clickable {
+                        onClick(ticket)
+                    }) {
                 Box(
                     Modifier
                         .weight(1f)
@@ -75,22 +85,9 @@ fun TicketListView(modifier: Modifier = Modifier,
                 }
             }
 
-            OutlinedCard(
-                Modifier
-                    .fillParentMaxWidth(0.9f)
-                    .fillParentMaxHeight(1f)
-                    .clickable {
-                        onClick(ticket)
-                    },
-                content = cardContent)
-
             if (i + 1 == tickets.size)
                 Spacer(modifier = Modifier.fillParentMaxWidth(0.05f))
         }
-    }
-
-    LaunchedEffect(key1 = initialFirstVisibleItemIndex) {
-        state.scrollToItem(initialFirstVisibleItemIndex)
     }
 }
 
@@ -135,7 +132,7 @@ fun EmptyTicketItem(modifier: Modifier = Modifier) {
 fun TicketEmptyListPreview(@PreviewParameter(TicketEmptyListProvider::class) tickets: List<ProstoTicket>) {
     ProstoTheme {
         Box {
-            TicketListView(tickets = tickets, onClick = {})
+            TicketListView(tickets = tickets, initialFirstVisibleItemIndex = 0, onClick = {})
         }
     }
 }
@@ -145,7 +142,7 @@ fun TicketEmptyListPreview(@PreviewParameter(TicketEmptyListProvider::class) tic
 fun TicketListPreview(@PreviewParameter(TicketListProvider::class) tickets: List<ProstoTicket>) {
     ProstoTheme {
         Box {
-            TicketListView(tickets = tickets, onClick = {})
+            TicketListView(tickets = tickets, initialFirstVisibleItemIndex = 0, onClick = {})
         }
     }
 }
