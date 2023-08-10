@@ -48,6 +48,7 @@ class QrCodeDialogContoller(
     private val ticketTurniketKeyUseCase: TicketTurniketKeyUseCase = ToporObject.ticketTurniketKeyUseCase
 ) : StateUIController<QRDialogState, QRDialogEvent>(QRDialogState(coworking, ticket)) {
     private val ticketLoadScope = coroutine + Job()
+    private var cachedUniversalTurniketKey: String? = null
 
     private fun cancelLoadTunrniketQR() {
         ticketLoadScope.coroutineContext.cancelChildren()
@@ -55,23 +56,35 @@ class QrCodeDialogContoller(
 
     private fun loadTurniketQR() {
         cancelLoadTunrniketQR()
-        ticketLoadScope.launch {
-            val universalTurniketKey = ticketTurniketKeyUseCase.getTurniketKey(coworking, ticket)
-            if (universalTurniketKey == null) {
-                updateState {
-                    copy(
-                        qrIsLoading = true,
-                        isTurnpikeQRUnavailableNow = true
-                    )
+        if (cachedUniversalTurniketKey == null) {
+            ticketLoadScope.launch {
+                ticketTurniketKeyUseCase.getTurniketKey(coworking, ticket).also { universalTurniketKey ->
+                    cachedUniversalTurniketKey = universalTurniketKey
+                    if (universalTurniketKey == null) {
+                        updateState {
+                            copy(
+                                qrIsLoading = true,
+                                isTurnpikeQRUnavailableNow = true
+                            )
+                        }
+                    } else {
+                        updateState {
+                            copy(
+                                qrData = universalTurniketKey,
+                                qrIsLoading = false,
+                                isTurnpikeQRUnavailableNow = false
+                            )
+                        }
+                    }
                 }
-            } else {
-                updateState {
-                    copy(
-                        qrData = universalTurniketKey,
-                        qrIsLoading = false,
-                        isTurnpikeQRUnavailableNow = false
-                    )
-                }
+            }
+        } else {
+            updateState {
+                copy(
+                    qrData = cachedUniversalTurniketKey!!,
+                    qrIsLoading = false,
+                    isTurnpikeQRUnavailableNow = false
+                )
             }
         }
     }
@@ -85,7 +98,8 @@ class QrCodeDialogContoller(
                         copy(
                             qrData = ticket.qrDataProsto,
                             selectedQRType = SelectedQRType.PROSTO,
-                            isTurnpikeQRUnavailableNow = false,
+                            qrIsLoading = false,
+                            isTurnpikeQRUnavailableNow = false
                         )
                     }
                 }

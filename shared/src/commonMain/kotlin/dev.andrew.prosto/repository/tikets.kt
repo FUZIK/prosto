@@ -429,11 +429,16 @@ class CoworkTicket_WebImpl(
 
     private var cachedUniversalRgKey: String? = null
     override suspend fun getUniversalTurniketKey(): String? {
-        return if (cachedUniversalRgKey == null) {
-            val rgKey = fetchRgKey()
-            rgKey?.also { cachedUniversalRgKey = it }
+        if (cachedUniversalRgKey == null) {
+            return fetchRgKey().let { key ->
+                if (key.isNullOrEmpty()) {
+                    null
+                } else {
+                    key
+                }
+            }
         } else {
-            cachedUniversalRgKey
+            return cachedUniversalRgKey
         }
 
     }
