@@ -6,7 +6,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
 fun LocalDate.humanDayRelativeFormat(
-    now: LocalDate = Clock.System.now().toLocalDateTime(TimeZone.UTC).date
+    now: LocalDate = Clock.System.now().toLocalDateTime(PROSTO_ZONE).date
 ) = run {
     when (this.toEpochDays() - now.toEpochDays()) {
         3 -> "послепослезавтра"

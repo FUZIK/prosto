@@ -9,6 +9,8 @@ import dev.andrew.prosto.repository.TicketInfo
 import dev.andrew.prosto.repository.TicketParams
 import dev.andrew.prosto.usecase.CreateTicketUseCase
 import dev.andrew.prosto.usecase.GetCoworkingTimesUseCase
+import dev.andrew.prosto.utilities.MSK_ZONE
+import dev.andrew.prosto.utilities.PROSTO_ZONE
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelChildren
@@ -19,6 +21,8 @@ import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.UtcOffset
+import kotlinx.datetime.asTimeZone
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 
@@ -92,12 +96,12 @@ class CreateTicketScreenController(
 
     // Це шо? На полпятого.
     // TODO: Delegate TicketScreenDate to TicketSource
-    private fun ticketDateDescriptor(date: TicketScreenDate): LocalDate {
-        val today = Clock.System.now().toLocalDateTime(timeZone = TimeZone.UTC).date
-        return when (date) {
-            TicketScreenDate.TODAY -> today
-            TicketScreenDate.TOMORROW -> today.plus(1, DateTimeUnit.DAY)
-            TicketScreenDate.AFTER_TOMORROW -> today.plus(2, DateTimeUnit.DAY)
+    private fun ticketDateDescriptor(ticketScreenDate: TicketScreenDate): LocalDate {
+        val now = Clock.System.now().toLocalDateTime(timeZone = PROSTO_ZONE).date
+        return when (ticketScreenDate) {
+            TicketScreenDate.TODAY -> now
+            TicketScreenDate.TOMORROW -> now.plus(1, DateTimeUnit.DAY)
+            TicketScreenDate.AFTER_TOMORROW -> now.plus(2, DateTimeUnit.DAY)
         }
     }
 

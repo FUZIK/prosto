@@ -3,8 +3,8 @@ package dev.andrew.prosto.usecase
 import dev.andrew.prosto.database.TicketStore
 import dev.andrew.prosto.repository.Coworking
 import dev.andrew.prosto.repository.ProstoTicket
+import dev.andrew.prosto.utilities.PROSTO_ZONE
 import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
 class TicketListWithTodayIndex(
@@ -30,8 +30,8 @@ class GetTicketListUseCaseImpl(
         val ticketList = getTicketList(coworking)
         if (ticketList.size > 1) {
             ticketList.sortedByDescending { it.date.toEpochDays() }.let { sortedTicketList ->
-                val nowUTCDate = Clock.System.now().toLocalDateTime(TimeZone.UTC).date
-                val todayTicket = sortedTicketList.indexOfFirst { it.date == nowUTCDate }
+                val now = Clock.System.now().toLocalDateTime(PROSTO_ZONE).date
+                val todayTicket = sortedTicketList.indexOfFirst { it.date == now }
                 if (todayTicket != -1) {
                     return TicketListWithTodayIndex(
                         tickets = sortedTicketList,

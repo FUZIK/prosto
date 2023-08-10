@@ -1,6 +1,7 @@
 package dev.andrew.prosto.repository
 
 import dev.andrew.prosto.ToporObject
+import dev.andrew.prosto.utilities.PROSTO_ZONE
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
@@ -27,12 +28,12 @@ sealed interface ProstoTicket {
     @Deprecated("All times null. Use getUniversalTurniketKey()")
     val qrDataTurniket: String?
     fun isActual(): Boolean =
-        Clock.System.now().toLocalDateTime(kotlinx.datetime.TimeZone.UTC).let { now ->
+        Clock.System.now().toLocalDateTime(PROSTO_ZONE).let { now ->
             date >= now.date
         }
 
     fun isToday(): Boolean =
-        Clock.System.now().toLocalDateTime(kotlinx.datetime.TimeZone.UTC).let { now ->
+        Clock.System.now().toLocalDateTime(PROSTO_ZONE).let { now ->
             now.date == date
         }
 }

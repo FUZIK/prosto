@@ -7,14 +7,14 @@ import dev.andrew.prosto.repository.ProstoTicket
 import dev.andrew.prosto.repository.TicketInfo
 import dev.andrew.prosto.repository.TicketParams
 import dev.andrew.prosto.repository.VisitTicket
+import dev.andrew.prosto.utilities.PROSTO_ZONE
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
-import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 
 private val NOW = Clock.System.now()
-private val NOW_DATE = NOW.toLocalDateTime(TimeZone.UTC).date
+private val NOW_DATE = NOW.toLocalDateTime(PROSTO_ZONE).date
 
 private val S_COWORKING = Coworking(
     id = 9,
@@ -80,11 +80,11 @@ class TicketListProvider : PreviewParameterProvider<List<ProstoTicket>> {
 //    VisitTicket(
 //    id = 0,
 //    info = TicketInfo(
-//    date = Clock.System.now().toLocalDateTime(TimeZone.UTC).date,
+//    date = Clock.System.now().toLocalDateTime(PROSTO_ZONE).date,
 //    times = emptyList(),
 //    params = TicketParams()
 //    ),
-//    date = Clock.System.now().toLocalDateTime(TimeZone.UTC).date,
+//    date = Clock.System.now().toLocalDateTime(PROSTO_ZONE).date,
 //    qrDataProsto = "HGEKERKNESNEGSJKESESGKJSEEGNENKESFKFEJKESRL,GFREAKLGEAKGRHIETU4HQ39T3",
 //    qrDataTurniket = null
 //    )

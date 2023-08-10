@@ -3,6 +3,7 @@ package dev.andrew.prosto
 import dev.andrew.prosto.repository.CoworkTicketResult
 import dev.andrew.prosto.repository.TicketInfo
 import dev.andrew.prosto.repository.TicketParams
+import dev.andrew.prosto.utilities.PROSTO_ZONE
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.*
@@ -18,11 +19,11 @@ class CoworkTicket_WebTest {
     private val testCoworking = coworkingRepository.getProsto()[0]
 
     private val yesterdayDate = Clock.System.now().minus(1.days)
-        .toLocalDateTime(timeZone = TimeZone.UTC).date
+        .toLocalDateTime(timeZone = PROSTO_ZONE).date
     private val todayDate = Clock.System.now()
-        .toLocalDateTime(timeZone = TimeZone.UTC).date
+        .toLocalDateTime(timeZone = PROSTO_ZONE).date
     private val nextDayDate = Clock.System.now().plus(1.days)
-        .toLocalDateTime(timeZone = TimeZone.UTC).date
+        .toLocalDateTime(timeZone = PROSTO_ZONE).date
 
     private suspend fun makeSuccessTicket(
         date: LocalDate,
