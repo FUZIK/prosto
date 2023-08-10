@@ -86,7 +86,6 @@ class SignInDialogController(
                         isActionButtonEnabled = true
                     )
                 }
-                emitEvent(SignInDialogEvent.OnDismiss())
             }
         }
     }
