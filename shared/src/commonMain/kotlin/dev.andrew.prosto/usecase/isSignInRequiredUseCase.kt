@@ -9,7 +9,7 @@ interface IsSignInRequiredUseCase {
 
 class IsSignInRequiredUseCaseImpl(
     private val authSource: AuthSource,
-): IsSignInRequiredUseCase {
+) : IsSignInRequiredUseCase {
     override suspend fun isSignInRequired(): Boolean {
         return authSource.isExpired(AuthSession.EMPTY)
     }

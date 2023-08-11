@@ -1,22 +1,14 @@
 package dev.andrew.prosto.repository
 
-import com.squareup.sqldelight.internal.AtomicBoolean
-import dev.andrew.prosto.ProstoDestination
-import dev.andrew.prosto.ProstoNavigator
 import dev.andrew.prosto.ToporObject
-import dev.andrew.prosto.usecase.IsSignInRequiredUseCase
 import dev.andrew.prosto.utilities.isWebAuthResponseResult
 import io.ktor.client.HttpClient
-import io.ktor.client.plugins.HttpSend
-import io.ktor.client.plugins.cookies.CookiesStorage
-import io.ktor.client.request.cookie
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import io.ktor.util.AttributeKey
-import kotlinx.coroutines.delay
 
 class AuthResult(
     val isAuthSuccess: Boolean,
@@ -44,7 +36,7 @@ interface AuthSource {
 
 class ProstoAuth_WebImpl(
     private val httpClient: HttpClient = ToporObject.prostoAuthHttpClient
-): AuthSource {
+) : AuthSource {
     companion object {
         val IS_AUTH_REQUEST = AttributeKey<Boolean>("isAuthRequest")
         val PHPSESSID_REGEX = Regex("PHPSESSID=(.*?)(?:;|)")
@@ -78,6 +70,7 @@ class ProstoAuth_WebImpl(
                     return false
                 }
             }
+
             HttpStatusCode.Found -> {
                 return false
             }

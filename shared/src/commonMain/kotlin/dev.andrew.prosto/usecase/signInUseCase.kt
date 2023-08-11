@@ -6,7 +6,7 @@ import dev.andrew.prosto.repository.AuthResult
 import dev.andrew.prosto.repository.AuthSource
 import kotlin.coroutines.cancellation.CancellationException
 
-class SignInError(message: String): Throwable(message)
+class SignInError(message: String) : Throwable(message)
 
 interface SignInUseCase {
     @Throws(SignInError::class, CancellationException::class)
@@ -17,7 +17,7 @@ interface SignInUseCase {
 class SignInUseCaseImpl(
     private val authSoure: AuthSource,
     private val userAuthLocalStore: UserAuthLocalStore
-): SignInUseCase {
+) : SignInUseCase {
     override suspend fun signIn(email: String, password: String, saveCredits: Boolean): AuthResult {
         val credits = AuthCredits(email, password)
         val authResult = authSoure.signIn(info = credits)

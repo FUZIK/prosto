@@ -3,15 +3,11 @@ package dev.andrew.prosto.utilities
 import dev.andrew.prosto.repository.AuthResult
 import dev.andrew.prosto.repository.AuthSession
 import dev.andrew.prosto.repository.ProstoAuth_WebImpl
-import io.ktor.client.plugins.cookies.HttpCookies
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.client.statement.request
-import io.ktor.http.Cookie
-import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.parseClientCookiesHeader
 
 fun getSessionIdFromHeaders(response: HttpResponse): String? {
     var sessionId: String? = null
@@ -56,7 +52,9 @@ fun getSessionIdFromHeaders(response: HttpResponse): String? {
                 cookieHeaders.firstOrNull { cookieHeader ->
                     cookieHeader.contains("PHPSESSID")
                 }?.let { phpSessionHeader ->
-                    ProstoAuth_WebImpl.PHPSESSID_REGEX.find(phpSessionHeader)?.groupValues?.getOrNull(1)
+                    ProstoAuth_WebImpl.PHPSESSID_REGEX.find(phpSessionHeader)?.groupValues?.getOrNull(
+                        1
+                    )
                 }
             }
         }
@@ -94,6 +92,7 @@ suspend fun isWebAuthResponseResult(response: HttpResponse): AuthResult {
                 )
             }
         }
+
         HttpStatusCode.Found -> {
             /* First auth */
             return AuthResult(

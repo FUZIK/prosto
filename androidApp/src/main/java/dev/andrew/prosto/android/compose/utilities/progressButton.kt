@@ -18,18 +18,21 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ProgressButton(onClick: () -> Unit,
-                   modifier: Modifier = Modifier,
-                   enabled: Boolean = true,
-                   inProgress: Boolean,
-                   shape: Shape = ButtonDefaults.shape,
-                   colors: ButtonColors = ButtonDefaults.buttonColors(),
-                   elevation: ButtonElevation? = ButtonDefaults.buttonElevation(),
-                   border: BorderStroke? = null,
-                   contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
-                   interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-                   content: @Composable RowScope.() -> Unit) {
-    Button(onClick = onClick,
+fun ProgressButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    inProgress: Boolean,
+    shape: Shape = ButtonDefaults.shape,
+    colors: ButtonColors = ButtonDefaults.buttonColors(),
+    elevation: ButtonElevation? = ButtonDefaults.buttonElevation(),
+    border: BorderStroke? = null,
+    contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    content: @Composable RowScope.() -> Unit
+) {
+    Button(
+        onClick = onClick,
         modifier = modifier,
         enabled = enabled,
         shape = shape,
@@ -37,7 +40,8 @@ fun ProgressButton(onClick: () -> Unit,
         elevation = elevation,
         contentPadding = if (inProgress) PaddingValues() else contentPadding,
         border = border,
-        interactionSource = interactionSource) {
+        interactionSource = interactionSource
+    ) {
         AnimatedVisibility(visible = inProgress) {
             CircularProgressIndicator(modifier = Modifier.size(30.dp), strokeWidth = 3.dp)
         }

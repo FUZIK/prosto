@@ -13,14 +13,14 @@ interface CreateTicketUseCase {
 class CreateTicketUseCaseImpl(
     private val ticketStore: TicketStore,
     private val ticketSource: ProstoTicketSource
-): CreateTicketUseCase {
+) : CreateTicketUseCase {
     override suspend fun createTicket(
         coworking: Coworking,
         ticketInfo: TicketInfo
     ): CoworkTicketResult {
         val result = ticketSource.createTicket(coworking = coworking, ticketInfo = ticketInfo)
         if (result.isSuccess && result.ticket != null) {
-            ticketStore.addTicket(coworking, result.ticket)
+            ticketStore.addOrUpdate(coworking, result.ticket)
         }
         return result
     }

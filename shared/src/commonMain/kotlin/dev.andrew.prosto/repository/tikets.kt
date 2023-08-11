@@ -1,6 +1,7 @@
 package dev.andrew.prosto.repository
 
 import dev.andrew.prosto.ToporObject
+import dev.andrew.prosto.utilities.PROSTO_ZONE
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
@@ -14,22 +15,31 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 
+enum class QrDataType {
+    API_URL,
+    DATA_RG_KEY
+}
+
 sealed interface ProstoTicket {
+    val id: Long
     val date: LocalDate
-    val dataForQR: String
+    val qrData: String
+
+    @Deprecated("All times null. Use getUniversalTurniketKey()")
+    val qrDataTurniket: String?
     fun isActual(): Boolean =
-        Clock.System.now().toLocalDateTime(kotlinx.datetime.TimeZone.UTC).let { now ->
+        Clock.System.now().toLocalDateTime(PROSTO_ZONE).let { now ->
             date >= now.date
         }
+
     fun isToday(): Boolean =
-        Clock.System.now().toLocalDateTime(kotlinx.datetime.TimeZone.UTC).let { now ->
+        Clock.System.now().toLocalDateTime(PROSTO_ZONE).let { now ->
             now.date == date
         }
 }
 
 class TicketInfo(
-    @Deprecated("Moved to ProstoTicket")
-    val date: LocalDate,
+    @Deprecated("Moved to ProstoTicket") val date: LocalDate,
     val times: List<LocalTime>,
     val params: TicketParams
 )
@@ -48,12 +58,13 @@ data class TicketParams(
     val needTemporaryStorage: Boolean = false
 )
 
-class VisitTicket(
-    val id: Long,
+data class VisitTicket(
+    override val id: Long,
     val info: TicketInfo,
     override val date: LocalDate = info.date,
-    override val dataForQR: String
-): ProstoTicket
+    override val qrData: String,
+    override val qrDataTurniket: String?
+) : ProstoTicket
 
 class CoworkTicketResult(
     val ticket: VisitTicket?,
@@ -67,20 +78,15 @@ class AvailableTime(
 )
 
 interface ProstoTicketSource {
-    suspend fun fetchTickets(): List<VisitTicket>
     suspend fun createTicket(coworking: Coworking, ticketInfo: TicketInfo): CoworkTicketResult
     suspend fun getAvailableDates(coworking: Coworking): List<LocalDate>
     suspend fun getAvailableTimes(coworking: Coworking, date: LocalDate): List<AvailableTime>
-}
-
-enum class QrDataType {
-    API_URL,
-    DATA_RG_KEY
+    suspend fun getUniversalTurniketKey(): String?
 }
 
 class CoworkTicket_WebImpl(
     private val httpClient: HttpClient = ToporObject.prostoAuthHttpClient
-): ProstoTicketSource {
+) : ProstoTicketSource {
     companion object {
         private val ACTIVE_DATA_ATTR_REGEX = "data-active-events='(.*?)(?:'|\r\n)".toRegex()
         private val DATA_RG_KEY_ATTR_REGEX = "data-rg-key=[\"']([^'\"]*)".toRegex()
@@ -132,36 +138,45 @@ class CoworkTicket_WebImpl(
             val year = units.component3().toInt()
             return LocalDate(year, month, day)
         }
+
         private fun fromLocalDate(date: LocalDate): String {
             val dayStr = date.dayOfMonth.run {
-                if (this > 9) this.toString() else "0$this" }
+                if (this > 9) this.toString() else "0$this"
+            }
             val monthStr = date.monthNumber.run {
-                if (this > 9) this.toString() else "0$this" }
+                if (this > 9) this.toString() else "0$this"
+            }
             val year = date.year
             return "$dayStr.$monthStr.$year"
         }
     }
+
     private inner class BitrixCoworking(
         val bitrixID: Int,
         val dateList: List<BitrixCoworkDate>
     )
+
     private inner class BitrixCoworkDate(
         val rawDate: String,
         val pathFragment: String
     )
+
     private inner class TicketPageTime(
         val time: LocalTime,
         val isAvailable: Boolean
     )
+
     private inner class TicketPageForm(
         val userID: String,
         val eventID: String,
         val times: List<TicketPageTime>
     )
+
     private suspend fun requestCoworkingPage(): String {
         val response = httpClient.get(COWORKING_LINK)
         return response.bodyAsText()
     }
+
     private fun extractBitrixCoworkingList(coworkingPage: String): List<BitrixCoworking> {
         val match = ACTIVE_DATA_ATTR_REGEX.find(coworkingPage)
         val firstGroup = match?.groupValues?.getOrNull(1)
@@ -186,38 +201,54 @@ class CoworkTicket_WebImpl(
             return coworkingData.map { entry ->
                 BitrixCoworking(
                     bitrixID = entry.key,
-                    dateList = entry.value.map { BitrixCoworkDate(rawDate = it.key, pathFragment = it.value) }
+                    dateList = entry.value.map {
+                        BitrixCoworkDate(
+                            rawDate = it.key,
+                            pathFragment = it.value
+                        )
+                    }
                 )
             }
         }
         return emptyList()
     }
+
     private suspend fun requestBitrixPage(date: BitrixCoworkDate): String {
         val response = httpClient.get("https://xn--90azaccdibh.xn--p1ai/${date.pathFragment}")
         return response.bodyAsText()
     }
+
     private fun extractAvailableTimes(bitrixPage: String): List<Pair<AvailableTime, String>> {
         val result = ArrayList<Pair<AvailableTime, String>>(12)
         var clickNameIndex = 10 /* 10ый час - время открытия коворкинга */
         INPUT_ELEMENT_REGEX.findAll(bitrixPage).forEach { match ->
             val matchValue = match.value
             if (matchValue.contains(GROUP0)
-                && matchValue.contains("checkbox")) {
-                VALUE_ATTRIBUTE_REGEX.find(matchValue)?.groupValues?.getOrNull(1)?.also { inputValue ->
-                    LocalTime(hour = clickNameIndex, minute = 0).also { time ->
-                        val isAvailable = !matchValue.contains("disable")
-                        result.add(AvailableTime(time, isAvailable) to inputValue)
+                && matchValue.contains("checkbox")
+            ) {
+                VALUE_ATTRIBUTE_REGEX.find(matchValue)?.groupValues?.getOrNull(1)
+                    ?.also { inputValue ->
+                        LocalTime(hour = clickNameIndex, minute = 0).also { time ->
+                            val isAvailable = !matchValue.contains("disable")
+                            result.add(AvailableTime(time, isAvailable) to inputValue)
+                        }
+                        clickNameIndex++
                     }
-                    clickNameIndex++
-                }
             }
         }
         return result
     }
+
     private fun isSupportAttribute(bitrixPage: String, attribute: String): Boolean {
         return bitrixPage.contains("value=\"$attribute\"")
     }
-    private suspend fun postTicketForm(coworking: Coworking, bitrixPage: String, date: BitrixCoworkDate, info: TicketInfo): CoworkTicketResult {
+
+    private suspend fun postTicketForm(
+        coworking: Coworking,
+        bitrixPage: String,
+        date: BitrixCoworkDate,
+        info: TicketInfo
+    ): CoworkTicketResult {
         var userID: String? = null
         var eventID: String? = null
 
@@ -246,7 +277,11 @@ class CoworkTicket_WebImpl(
         val availableTimes = extractAvailableTimes(bitrixPage)
 
         if (availableTimes.isEmpty()) {
-            return CoworkTicketResult(ticket = null, error = "Unknown server times", isSuccess = false)
+            return CoworkTicketResult(
+                ticket = null,
+                error = "Unknown server times",
+                isSuccess = false
+            )
         }
 
         val hoursGroup = availableTimes.mapNotNull { time ->
@@ -309,16 +344,13 @@ class CoworkTicket_WebImpl(
                     isSuccess = false
                 )
             } else {
+                val qrDataType = getQrDataType(coworking)
                 CoworkTicketResult(
                     ticket = VisitTicket(
                         id = eventID!!.toLong(),
                         info = info,
-                        dataForQR = getQrDataType(coworking).run {
-                            when(this) {
-                                QrDataType.API_URL -> "http://xn--90azaccdibh.xn--p1ai/api/form_participation.php?user_id=${userID}&event_id=${eventID}"
-                                QrDataType.DATA_RG_KEY -> getDataRgKey() ?: "http://xn--90azaccdibh.xn--p1ai/api/form_participation.php?user_id=${userID}&event_id=${eventID}"
-                            }
-                        },
+                        qrData = "http://xn--90azaccdibh.xn--p1ai/api/form_participation.php?user_id=${userID}&event_id=${eventID}",
+                        qrDataTurniket = if (qrDataType == QrDataType.DATA_RG_KEY) getUniversalTurniketKey() else null,
                     ),
                     error = null,
                     isSuccess = true
@@ -328,23 +360,23 @@ class CoworkTicket_WebImpl(
 
         return CoworkTicketResult(ticket = null, error = "Unknown error", isSuccess = false)
     }
-    private var dataRgKey: String? = null
-    private suspend fun getDataRgKey(): String? {
-        if (dataRgKey == null) {
-            val response = httpClient.get("https://xn--90azaccdibh.xn--p1ai/auth/personal.php#user_div_recorded_coworking")
-            val html = response.bodyAsText()
-            DATA_RG_KEY_ATTR_REGEX.find(html)?.also { result ->
-                dataRgKey = result.value
-            }
+
+    private suspend fun fetchRgKey(): String? {
+        val response =
+            httpClient.get("https://xn--90azaccdibh.xn--p1ai/auth/personal.php#user_div_recorded_coworking")
+        val html = response.bodyAsText()
+        DATA_RG_KEY_ATTR_REGEX.find(html)?.also { result ->
+            return result.groupValues.getOrNull(1)
         }
-        return dataRgKey
+        return null
     }
+
     override suspend fun createTicket(
         coworking: Coworking,
         ticketInfo: TicketInfo
     ): CoworkTicketResult {
         requestCoworkingPage().also { coworkingPage ->
-            extractBitrixCoworkingList(coworkingPage).also { coworkingList->
+            extractBitrixCoworkingList(coworkingPage).also { coworkingList ->
                 val coworkingByID = coworkingList.firstOrNull { it.bitrixID == coworking.bitrixID }
                 if (coworkingByID != null && coworkingByID.dateList.isNotEmpty()) {
                     val strDate = fromLocalDate(ticketInfo.date)
@@ -359,9 +391,7 @@ class CoworkTicket_WebImpl(
         }
         return CoworkTicketResult(ticket = null, error = "Unknown error", isSuccess = false)
     }
-    override suspend fun fetchTickets(): List<VisitTicket> {
-        return emptyList()
-    }
+
     override suspend fun getAvailableDates(coworking: Coworking): List<LocalDate> {
         requestCoworkingPage().also { coworkingPage ->
             extractBitrixCoworkingList(coworkingPage).also { coworkingList ->
@@ -373,9 +403,13 @@ class CoworkTicket_WebImpl(
         }
         return emptyList()
     }
-    override suspend fun getAvailableTimes(coworking: Coworking, date: LocalDate): List<AvailableTime> {
+
+    override suspend fun getAvailableTimes(
+        coworking: Coworking,
+        date: LocalDate
+    ): List<AvailableTime> {
         requestCoworkingPage().also { coworkingPage ->
-            extractBitrixCoworkingList(coworkingPage).also { coworkingList->
+            extractBitrixCoworkingList(coworkingPage).also { coworkingList ->
                 val coworkingByID = coworkingList.firstOrNull { it.bitrixID == coworking.bitrixID }
                 if (coworkingByID != null && coworkingByID.dateList.isNotEmpty()) {
                     val strDate = fromLocalDate(date)
@@ -391,5 +425,21 @@ class CoworkTicket_WebImpl(
             }
         }
         return emptyList()
+    }
+
+    private var cachedUniversalRgKey: String? = null
+    override suspend fun getUniversalTurniketKey(): String? {
+        if (cachedUniversalRgKey == null) {
+            return fetchRgKey().let { key ->
+                if (key.isNullOrEmpty()) {
+                    null
+                } else {
+                    key
+                }
+            }
+        } else {
+            return cachedUniversalRgKey
+        }
+
     }
 }

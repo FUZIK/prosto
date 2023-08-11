@@ -11,7 +11,7 @@ interface Reducer<in S, in E, out T> {
     fun reduce(state: S, event: E)
 }
 
-abstract class FlowReducer<S, E>(initial: S): Reducer<S, E, StateFlow<S>> {
+abstract class FlowReducer<S, E>(initial: S) : Reducer<S, E, StateFlow<S>> {
     private val mutableState = MutableStateFlow(initial)
     override val state: StateFlow<S>
         get() = mutableState
@@ -27,7 +27,7 @@ abstract class FlowReducer<S, E>(initial: S): Reducer<S, E, StateFlow<S>> {
     abstract override fun reduce(state: S, event: E)
 }
 
-abstract class StateUIController<S, E>(initial: S): FlowReducer<S, E>(initial)
+abstract class StateUIController<S, E>(initial: S) : FlowReducer<S, E>(initial)
 
 inline fun <S, E> StateUIController<S, E>.updateState(block: S.() -> S) {
     setState(state.value.block())
