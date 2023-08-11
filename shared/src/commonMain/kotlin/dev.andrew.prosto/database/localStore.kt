@@ -63,7 +63,7 @@ class TicketStoreImpl(
     private val ticketTableQueries: TicketTableQueries
 ) : TicketStore {
     override suspend fun getTickets(coworking: Coworking): List<VisitTicket> {
-        return ticketTableQueries.selectByCoworkingId(coworkingId = coworking.id.toLong()) { id, _, epochDays, qrDataProsto, qrDataTurniket ->
+        return ticketTableQueries.selectByCoworkingId(coworkingId = coworking.id.toLong()) { id, _, epochDays, qrData, qrDataTurniket ->
             val info = TicketInfo(
                 date = LocalDate.fromEpochDays(epochDays.toInt()),
                 times = emptyList(),
@@ -72,7 +72,7 @@ class TicketStoreImpl(
             VisitTicket(
                 id = id,
                 info = info,
-                qrDataProsto = qrDataProsto,
+                qrData = qrData,
                 qrDataTurniket = qrDataTurniket
             )
         }.executeAsList()
@@ -83,7 +83,7 @@ class TicketStoreImpl(
             id = ticket.id,
             coworkingId = coworking.id.toLong(),
             epochDays = ticket.date.toEpochDays().toLong(),
-            qrDataProsto = ticket.qrDataProsto,
+            qrData = ticket.qrData,
             qrDataTurniket = ticket.qrDataTurniket
         )
     }

@@ -23,7 +23,7 @@ enum class QrDataType {
 sealed interface ProstoTicket {
     val id: Long
     val date: LocalDate
-    val qrDataProsto: String
+    val qrData: String
 
     @Deprecated("All times null. Use getUniversalTurniketKey()")
     val qrDataTurniket: String?
@@ -62,7 +62,7 @@ data class VisitTicket(
     override val id: Long,
     val info: TicketInfo,
     override val date: LocalDate = info.date,
-    override val qrDataProsto: String,
+    override val qrData: String,
     override val qrDataTurniket: String?
 ) : ProstoTicket
 
@@ -349,7 +349,7 @@ class CoworkTicket_WebImpl(
                     ticket = VisitTicket(
                         id = eventID!!.toLong(),
                         info = info,
-                        qrDataProsto = "http://xn--90azaccdibh.xn--p1ai/api/form_participation.php?user_id=${userID}&event_id=${eventID}",
+                        qrData = "http://xn--90azaccdibh.xn--p1ai/api/form_participation.php?user_id=${userID}&event_id=${eventID}",
                         qrDataTurniket = if (qrDataType == QrDataType.DATA_RG_KEY) getUniversalTurniketKey() else null,
                     ),
                     error = null,

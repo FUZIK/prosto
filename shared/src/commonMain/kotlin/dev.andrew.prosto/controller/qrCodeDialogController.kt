@@ -26,7 +26,7 @@ data class QRDialogState(
     val isTurnpikeQRUnavailableNow: Boolean
 ) {
     constructor(coworking: Coworking, ticket: ProstoTicket) : this(
-        qrData = ticket.qrDataProsto,
+        qrData = ticket.qrData,
         selectedQRType = SelectedQRType.PROSTO,
         isTurniketQREnabled = coworking.isSupportTurniket,
         qrIsLoading = false,
@@ -96,7 +96,7 @@ class QrCodeDialogContoller(
                 if (state.selectedQRType != SelectedQRType.PROSTO) {
                     updateState {
                         copy(
-                            qrData = ticket.qrDataProsto,
+                            qrData = ticket.qrData,
                             selectedQRType = SelectedQRType.PROSTO,
                             qrIsLoading = false,
                             isTurnpikeQRUnavailableNow = false

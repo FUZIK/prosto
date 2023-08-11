@@ -66,7 +66,7 @@ class TicketListProvider : PreviewParameterProvider<List<ProstoTicket>> {
         val date = NOW_DATE.plus(i, DateTimeUnit.DAY)
         VisitTicket(
             id = Long.MAX_VALUE,
-            qrDataProsto = "https://www.youtube.com/watch?v=tOzjasE9Fuw",
+            qrData = "https://www.youtube.com/watch?v=tOzjasE9Fuw",
             qrDataTurniket = "tOzjasE9Fuw",
             info = TicketInfo(
                 date = date,

@@ -2,7 +2,7 @@ CREATE TABLE StoredCoworkingTicket (
     id INTEGER NOT NULL,
     coworkingId INTEGER NOT NULL,
     epochDays INTEGER NOT NULL,
-    qrDataProsto TEXT NOT NULL,
+    qrData TEXT NOT NULL,
     qrDataTurniket TEXT,
     PRIMARY KEY(id)
 );
@@ -17,5 +17,5 @@ selectByTicketId:
 SELECT * FROM StoredCoworkingTicket WHERE id=:id;
 
 insertOrUpdate:
-INSERT OR REPLACE INTO StoredCoworkingTicket(id, coworkingId, epochDays, qrDataProsto, qrDataTurniket)
+INSERT OR REPLACE INTO StoredCoworkingTicket(id, coworkingId, epochDays, qrData, qrDataTurniket)
 VALUES (?, ?, ?, ?, ?);

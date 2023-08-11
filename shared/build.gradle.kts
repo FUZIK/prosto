@@ -86,12 +86,7 @@ android {
 
 sqldelight {
     database("AppDatabase") {
+        version = 2
         packageName = "dev.andrew.prosto"
-        verifyMigrations = true
-        schemaOutputDirectory = file("shared/src/commonMain/sqldelight/dev/andrew/prosto/schema")
-        migrationOutputDirectory =
-            file("shared/src/commonMain/sqldelight/dev/andrew/prosto/migration")
-        migrationOutputFileFormat = ".sqm"
-        dialect = "sqlite:3.25"
     }
 }
