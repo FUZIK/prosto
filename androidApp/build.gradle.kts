@@ -10,8 +10,8 @@ android {
         applicationId = "dev.andrew.prosto"
         minSdk = 21
         targetSdk = 33
-        versionCode = 6
-        versionName = "0.2"
+        versionCode = 7
+        versionName = "0.3"
         // Required when setting minSdkVersion to 20 or lower
         // multiDexEnabled true
 
