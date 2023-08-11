@@ -125,7 +125,9 @@ fun MainScreen() {
                         val uriHandler = LocalUriHandler.current
                         CoworkingAddressCard(Modifier.padding(15.dp), {
                             runCatching {
-                                uriHandler.openUri("geo:0,0?q=${coworking.fullAddress}")
+                                with (coworking) {
+                                    uriHandler.openUri("geo:$latitude,$longitude?q=$fullAddress")
+                                }
                             }
                         }, coworking, metroColor)
                         Box(
