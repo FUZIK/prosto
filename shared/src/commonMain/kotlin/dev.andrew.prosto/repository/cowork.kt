@@ -24,7 +24,12 @@ data class Coworking(
     val licenseRead: String,
     val latitude: Double = .0,
     val longitude: Double = .0,
-    val isSupportTurniket: Boolean = false
+    val isSupportTurniket: Boolean = false,
+    val isSupportTemporaryStorage: Boolean = false,
+    val isSupportNotebook: Boolean = true,
+    val isSupportLaminator: Boolean = false,
+    val isSupportStaplerBindingMachine: Boolean = false,
+
 )
 
 interface CoworkingSource {
@@ -44,7 +49,8 @@ class Cowork_LocalImpl : CoworkingSource {
             metroStation = MetroStation.SPB_PETROGA,
             bitrixID = 1674,
             firmColor = 0xFFED0082,
-            licenseRead = "филиал молодёжного пространства \n«ПРОСТО» – на Карповке"
+            licenseRead = "филиал молодёжного пространства \n«ПРОСТО» – на Карповке",
+            isSupportTemporaryStorage = true
         )
         val PRODUCTION = Coworking(
             id = 1,
@@ -58,7 +64,8 @@ class Cowork_LocalImpl : CoworkingSource {
             bitrixID = 1675,
             firmColor = 0xFF6200EA,
             licenseRead = "филиал молодёжного пространства \n«ПРОСТО» – на Большом",
-            isSupportTurniket = true
+            isSupportTurniket = true,
+            isSupportTemporaryStorage = true
         )
         val TO_SMART = Coworking(
             id = 2,
@@ -71,7 +78,9 @@ class Cowork_LocalImpl : CoworkingSource {
             metroStation = MetroStation.SPB_MOSKOVSKAY,
             bitrixID = 2708,
             firmColor = 0xFFFFC107,
-            licenseRead = "филиал молодёжного пространства \n«ПРОСТО» – на Новоизе"
+            licenseRead = "филиал молодёжного пространства \n«ПРОСТО» – на Новоизе",
+            isSupportLaminator = true,
+            isSupportStaplerBindingMachine = true
         )
         val KALININSKIY = Coworking(
             id = 4,
@@ -84,7 +93,8 @@ class Cowork_LocalImpl : CoworkingSource {
             metroStation = MetroStation.SPB_PLOSCHAD_MUZHESTVA,
             bitrixID = 2709,
             firmColor = 0xFFFFFFFF,
-            licenseRead = "районный коворкинг \n«ПРОСТО.Калининский»"
+            licenseRead = "районный коворкинг \n«ПРОСТО.Калининский»",
+            isSupportNotebook = false
         )
         val MOSCOW = Coworking(
             id = 3,

@@ -7,9 +7,9 @@ import dev.andrew.prosto.repository.AvailableTime
 import dev.andrew.prosto.repository.Coworking
 import dev.andrew.prosto.repository.TicketInfo
 import dev.andrew.prosto.repository.TicketParams
+import dev.andrew.prosto.updateState
 import dev.andrew.prosto.usecase.CreateTicketUseCase
 import dev.andrew.prosto.usecase.GetCoworkingTimesUseCase
-import dev.andrew.prosto.utilities.MSK_ZONE
 import dev.andrew.prosto.utilities.PROSTO_ZONE
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -20,9 +20,6 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.UtcOffset
-import kotlinx.datetime.asTimeZone
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 
@@ -36,7 +33,7 @@ data class TicketScreenState(
     val ticketDate: TicketScreenDate,
     val availableTimes: List<AvailableTime>,
     val selectedTimes: List<LocalTime>,
-    val selectedParams: TicketParams
+    val selectedTicketParams: TicketParams
 ) {
     constructor(coworking: Coworking) : this(
         coworking = coworking,
@@ -48,7 +45,7 @@ data class TicketScreenState(
         ticketDate = TicketScreenDate.TODAY,
         availableTimes = emptyList(),
         selectedTimes = emptyList(),
-        selectedParams = TicketParams()
+        selectedTicketParams = TicketParams()
     )
 }
 
@@ -123,7 +120,7 @@ class CreateTicketScreenController(
             val ticketInfo = TicketInfo(
                 date = ticketDateDescriptor(aState.ticketDate),
                 times = validTimes,
-                params = aState.selectedParams
+                params = aState.selectedTicketParams
             )
             coroutineScope.launch {
                 val result = createTicketUseCase.createTicket(
@@ -152,16 +149,17 @@ class CreateTicketScreenController(
         }
     }
 
-    private fun updateTicketButtonState() {
-        state.value.also { aState ->
-            setState(
-                aState.copy(
-                    isTicketButtonEnabled =
-                    aState.selectedTimes.isNotEmpty()
-                            && aState.availableTimes.isNotEmpty()
-                )
+    private fun updateRegisterButtonState(state: TicketScreenState): TicketScreenState {
+        val isAnyTimeSelected = state.selectedTimes.isNotEmpty() && state.availableTimes.isNotEmpty()
+        val isAnyReasonSelected = state.selectedTicketParams.run {
+            isIndependentWork || isOrganizationRecreation || isIndependentProjectWork
+        }
+        val isAnyMachineSelected = state.selectedTicketParams.run {
+            noNeedAnyMachines || (
+                needKomp || needMFUPrinter || needFlipchart || needLaminator || needStaplerBindingMachine || needOfficeSupplies
             )
         }
+        return state.copy(isTicketButtonEnabled = isAnyTimeSelected && isAnyReasonSelected && isAnyMachineSelected)
     }
 
     override fun reduce(state: TicketScreenState, event: TicketScreenEvent) {
@@ -171,33 +169,35 @@ class CreateTicketScreenController(
                     setState(state.copy(ticketDate = event.ticketDate))
                     reloadAvailableTimes()
                 }
-                updateTicketButtonState()
             }
 
             is TicketScreenEvent.OnTicketParamsChanged -> {
-                setState(state.copy(selectedParams = event.selectedParams))
-                updateTicketButtonState()
+                updateState {
+                    updateRegisterButtonState(copy(
+                        selectedTicketParams = event.selectedParams
+                    ))
+                }
             }
 
             is TicketScreenEvent.OnTicketTimeChanged -> {
                 val selectedTimes = state.selectedTimes
                 if (selectedTimes.contains(event.time)) {
                     if (!event.selected) {
-                        setState(
-                            state.copy(
-                                selectedTimes = selectedTimes.filter { it != event.time })
-                        )
+                        updateState {
+                            updateRegisterButtonState(copy(
+                                selectedTimes = selectedTimes.filter { it != event.time }
+                            ))
+                        }
                     }
                 } else {
                     if (event.selected) {
-                        setState(
-                            state.copy(
+                        updateState {
+                            updateRegisterButtonState(copy(
                                 selectedTimes = selectedTimes.plus(event.time)
-                            )
-                        )
+                            ))
+                        }
                     }
                 }
-                updateTicketButtonState()
             }
 
             is TicketScreenEvent.OnRegisterClick -> {
