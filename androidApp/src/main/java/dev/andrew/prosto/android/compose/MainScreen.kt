@@ -168,16 +168,17 @@ fun MainScreen() {
                 }
             },
             bottomBar = {
-                Box {
-                    Text(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .then(scrollableModifier),
-                        text = coworking.licenseRead,
-                        textAlign = TextAlign.Center,
-                        color = Color.Gray
-                    )
-                }
+                Text(
+                    modifier = Modifier
+                        .padding(bottom = 10.dp)
+                        .fillMaxWidth()
+                        .then(scrollableModifier),
+                    text = coworking.licenseRead,
+                    textAlign = TextAlign.Center,
+                    color = Color.Gray,
+                    minLines = 1,
+                    maxLines = 2
+                )
             }
         )
     }
