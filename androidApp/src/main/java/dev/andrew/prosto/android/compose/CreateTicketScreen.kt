@@ -11,7 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -21,6 +21,7 @@ import dev.andrew.prosto.ProstoTheme
 import dev.andrew.prosto.android.compose.utilities.LabeledCheckBox
 import dev.andrew.prosto.android.compose.utilities.LabeledColumn
 import dev.andrew.prosto.android.compose.utilities.ProgressButton
+import dev.andrew.prosto.android.compose.utilities.RequiresLabelSpan
 import dev.andrew.prosto.controller.CreateTicketScreenController
 import dev.andrew.prosto.controller.TicketScreenDate
 import dev.andrew.prosto.controller.TicketScreenEvent
@@ -30,7 +31,7 @@ import dev.andrew.prosto.repository.TicketParams
 import kotlinx.datetime.LocalTime
 import shimmerBackground
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalTextApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateTicketScreen(coworking: Coworking) {
     val coroutineScope = rememberCoroutineScope()
@@ -79,7 +80,7 @@ fun CreateTicketScreen(coworking: Coworking) {
                             .height(43.dp),
                         enabled = state.isTicketButtonEnabled,
                         inProgress = state.isTicketInProgress,
-//                        colors = ButtonDefaults.buttonColors(containerColor = Color(coworking.firmColor)),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(coworking.firmColor)),
                         onClick = {
                             controller.emitEvent(TicketScreenEvent.OnRegisterClick())
                         }) {
@@ -106,10 +107,6 @@ fun CreateTicketScreen(coworking: Coworking) {
                     }
                 )
             }
-
-//                .clickable {  }
-//                .toggleable()
-//                .draggable()
 
             Box(Modifier.padding(start = 10.dp, end = 10.dp)) {
                 TicketCreateView(
@@ -141,7 +138,7 @@ fun TicketCreateView(
     val availableTimes = state.availableTimes
     val selectedTimes = state.selectedTimes
     Column(Modifier.verticalScroll(state = scrollState)) {
-        LabeledColumn(label = "время") {
+        LabeledColumn(label = RequiresLabelSpan("время")) {
             FlowRow(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 mainAxisSpacing = 8.dp,
@@ -176,8 +173,8 @@ fun TicketCreateView(
                 }
             }
         }
-        val selectedParams = state.selectedParams
-        LabeledColumn(label = "цели") {
+        val selectedParams = state.selectedTicketParams
+        LabeledColumn(label = RequiresLabelSpan("цели")) {
             LabeledCheckBox(
                 checked = selectedParams.isIndependentWork,
                 label = "самостоятельная работа",
@@ -197,64 +194,70 @@ fun TicketCreateView(
                     onParamChanged(selectedParams.copy(isIndependentProjectWork = it))
                 })
         }
-        LabeledColumn(label = "техника") {
+        LabeledColumn(label = RequiresLabelSpan("техника")) {
             LabeledCheckBox(
                 checked = selectedParams.noNeedAnyMachines,
                 label = "не нужна орг. техника",
                 onValueChange = {
                     onParamChanged(selectedParams.copy(noNeedAnyMachines = it))
                 })
-            LabeledCheckBox(
-                checked = selectedParams.needKomp,
-                enabled = !selectedParams.noNeedAnyMachines,
-                label = "ноутбук (не доступно в ПРОСТО.Калиниский)",
-                onValueChange = {
-                    onParamChanged(selectedParams.copy(needKomp = it))
-                })
-            LabeledCheckBox(
-                checked = selectedParams.needMFUPrinter,
-                enabled = !selectedParams.noNeedAnyMachines,
-                label = "принтер (МФУ)(не доступно в ПРОСТО.Калининский)",
-                onValueChange = {
-                    onParamChanged(selectedParams.copy(needMFUPrinter = it))
-                })
-            LabeledCheckBox(
-                checked = selectedParams.needFlipchart,
-                enabled = !selectedParams.noNeedAnyMachines,
-                label = "флипчарт",
-                onValueChange = {
-                    onParamChanged(selectedParams.copy(needFlipchart = it))
-                })
-            LabeledCheckBox(
-                checked = selectedParams.needLaminator,
-                enabled = !selectedParams.noNeedAnyMachines,
-                label = "ламинатор (доступно только в ПРОСТО.2SMART)",
-                onValueChange = {
-                    onParamChanged(selectedParams.copy(needLaminator = it))
-                })
-            LabeledCheckBox(
-                checked = selectedParams.needStaplerBindingMachine,
-                enabled = !selectedParams.noNeedAnyMachines,
-                label = "брошюратор (доступно только в ПРОСТО.2SMART)",
-                onValueChange = {
-                    onParamChanged(selectedParams.copy(needStaplerBindingMachine = it))
-                })
-            LabeledCheckBox(
-                checked = selectedParams.needOfficeSupplies,
-                enabled = !selectedParams.noNeedAnyMachines,
-                label = "расходные материалы (маркеры, ручки, бумага)",
-                onValueChange = {
-                    onParamChanged(selectedParams.copy(needOfficeSupplies = it))
-                })
-        }
-        LabeledColumn("дополнительно") {
-            LabeledCheckBox(
-                checked = selectedParams.needTemporaryStorage,
-                label = "шкафчик для временного хранения"
-            ) {
-                onParamChanged(selectedParams.copy(needTemporaryStorage = it))
+            (!selectedParams.noNeedAnyMachines).also { enabled ->
+                if (state.coworking.isSupportNotebook)
+                    LabeledCheckBox(
+                        checked = selectedParams.needKomp,
+                        enabled = enabled,
+                        label = "ноутбук (доступно при наличии)",
+                        onValueChange = {
+                            onParamChanged(selectedParams.copy(needKomp = it))
+                        })
+                LabeledCheckBox(
+                    checked = selectedParams.needMFUPrinter,
+                    enabled = enabled,
+                    label = "принтер (МФУ)",
+                    onValueChange = {
+                        onParamChanged(selectedParams.copy(needMFUPrinter = it))
+                    })
+                LabeledCheckBox(
+                    checked = selectedParams.needFlipchart,
+                    enabled = enabled,
+                    label = "флипчарт",
+                    onValueChange = {
+                        onParamChanged(selectedParams.copy(needFlipchart = it))
+                    })
+                if (state.coworking.isSupportLaminator)
+                    LabeledCheckBox(
+                        checked = selectedParams.needLaminator,
+                        enabled = enabled,
+                        label = "ламинатор",
+                        onValueChange = {
+                            onParamChanged(selectedParams.copy(needLaminator = it))
+                        })
+                if (state.coworking.isSupportStaplerBindingMachine)
+                    LabeledCheckBox(
+                        checked = selectedParams.needStaplerBindingMachine,
+                        enabled = enabled,
+                        label = "брошюратор",
+                        onValueChange = {
+                            onParamChanged(selectedParams.copy(needStaplerBindingMachine = it))
+                        })
+                LabeledCheckBox(
+                    checked = selectedParams.needOfficeSupplies,
+                    enabled = enabled,
+                    label = "расходные материалы (маркеры, ручки, бумага)",
+                    onValueChange = {
+                        onParamChanged(selectedParams.copy(needOfficeSupplies = it))
+                    })
             }
         }
+        if (state.coworking.isSupportTemporaryStorage)
+            LabeledColumn("дополнительно") {
+                LabeledCheckBox(
+                    checked = selectedParams.needTemporaryStorage,
+                    label = "шкафчик для временного хранения"
+                ) {
+                    onParamChanged(selectedParams.copy(needTemporaryStorage = it))
+                }
+            }
     }
 
 }

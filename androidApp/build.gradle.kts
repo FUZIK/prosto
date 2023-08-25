@@ -10,10 +10,14 @@ android {
         applicationId = "dev.andrew.prosto"
         minSdk = 21
         targetSdk = 33
-        versionCode = 7
-        versionName = "0.3"
+        versionCode = 10
+        versionName = "0.5"
         // Required when setting minSdkVersion to 20 or lower
         // multiDexEnabled true
+        manifestPlaceholders += mapOf(
+            "application_icon" to "@mipmap/ic_launcher",
+            "application_roundIcon" to "@mipmap/ic_launcher_round"
+        )
 
     }
     buildFeatures {
@@ -33,12 +37,19 @@ android {
         }
     }
     buildTypes {
-        getByName("release") {
+        release {
             isMinifyEnabled = true
-            isShrinkResources = false
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
+            )
+        }
+        debug {
+            applicationIdSuffix = ".debug"
+            manifestPlaceholders += mapOf(
+                "application_icon" to "@mipmap/ic_launcher_debug",
+                "application_roundIcon" to "@mipmap/ic_launcher_debug"
             )
         }
     }
@@ -78,4 +89,5 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-datetime-jvm:0.4.0")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
 
+    debugImplementation("com.squareup.leakcanary:leakcanary-android:2.12")
 }
