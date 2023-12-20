@@ -80,7 +80,6 @@ fun CreateTicketScreen(coworking: Coworking) {
                             .height(43.dp),
                         enabled = state.isTicketButtonEnabled,
                         inProgress = state.isTicketInProgress,
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(coworking.firmColor)),
                         onClick = {
                             controller.emitEvent(TicketScreenEvent.OnRegisterClick())
                         }) {
