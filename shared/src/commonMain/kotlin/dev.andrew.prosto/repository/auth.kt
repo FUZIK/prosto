@@ -9,6 +9,9 @@ import io.ktor.client.request.post
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import io.ktor.util.AttributeKey
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class AuthResult(
     val isAuthSuccess: Boolean,
@@ -30,6 +33,7 @@ class AuthSession(
 }
 
 interface AuthSource {
+    val isUserAuth: Flow<Boolean>
     suspend fun signIn(info: AuthCredits): AuthResult
     suspend fun isExpired(session: AuthSession): Boolean
 }
@@ -42,6 +46,9 @@ class ProstoAuth_WebImpl(
         val PHPSESSID_REGEX = Regex("PHPSESSID=(.*?)(?:;|)")
     }
 
+    private val _isUserAuth = MutableStateFlow(false)
+    override val isUserAuth = _isUserAuth.asStateFlow()
+
     override suspend fun signIn(info: AuthCredits): AuthResult {
         val response = httpClient.post("https://xn--90azaccdibh.xn--p1ai/auth/") {
             parameter("USER_LOGIN", info.email)
@@ -53,7 +60,9 @@ class ProstoAuth_WebImpl(
             }
         }
 
-        return isWebAuthResponseResult(response)
+        return isWebAuthResponseResult(response).also {
+            _isUserAuth.emit(it.isAuthSuccess)
+        }
     }
 
     override suspend fun isExpired(session: AuthSession): Boolean {
@@ -62,19 +71,10 @@ class ProstoAuth_WebImpl(
                 put(IS_AUTH_REQUEST, true)
             }
         }
-        when (response.status) {
-            HttpStatusCode.OK -> {
-                val html = response.bodyAsText()
-                if (html.contains("Вы зарегистрированы и успешно авторизовались")) {
-                    /* Session is valid */
-                    return false
-                }
-            }
-
-            HttpStatusCode.Found -> {
-                return false
-            }
-        }
-        return true
+        return when (response.status) {
+            HttpStatusCode.OK -> !response.bodyAsText().contains("Вы зарегистрированы и успешно авторизовались")
+            HttpStatusCode.Found -> false
+            else -> true
+        } .also { isExpired ->_isUserAuth.emit(!isExpired) }
     }
 }
