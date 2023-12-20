@@ -10,8 +10,8 @@ android {
         applicationId = "dev.andrew.prosto"
         minSdk = 21
         targetSdk = 33
-        versionCode = 10
-        versionName = "0.5"
+        versionCode = 11
+        versionName = "0.6"
         // Required when setting minSdkVersion to 20 or lower
         // multiDexEnabled true
         manifestPlaceholders += mapOf(
