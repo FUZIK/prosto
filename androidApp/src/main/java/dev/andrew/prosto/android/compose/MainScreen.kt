@@ -60,17 +60,10 @@ fun MainScreen() {
 
     if (state.isCoworkingListLoading) {
         Box(Modifier.fillMaxSize()) {
-            ProstoLogo(
-                Modifier
-                    .align(Alignment.Center)
-                    .padding(10.dp))
-            // TODO бага изза прогресса экран фризится
-            //  здорово зарепортить или попытаться исправить прогресс
-            //  https://github.com/material-components/material-components-android/issues/2355
-            //  CircularProgressIndicator(
-            //    modifier = Modifier.align(Alignment.Center))
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center))
         }
-    } else if (!state.isCoworkingListLoading) {
+    } else {
         println("MainContent")
         val coworking = state.coworking!!
         val metroColor = getMetroColor(coworking)

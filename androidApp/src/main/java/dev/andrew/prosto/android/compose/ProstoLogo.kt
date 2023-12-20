@@ -11,18 +11,28 @@ import androidx.compose.ui.graphics.Color
 import dev.andrew.prosto.android.compose.utilities.norippleClickable
 import dev.andrew.prosto.android.rememberProstoLogoPainter
 
+// source: https://prostospb.team/brandbook
+private val COLORS = listOf(
+    Color.Black,
+    Color(0xFFED0082),
+    Color(0xFF6200EA),
+    Color(0xFFDAEF14),
+    Color(0xFF02D2EE),
+    Color(0xFFE6194C),
+    Color.White,
+)
+
 @Composable
 fun ProstoLogo(modifier: Modifier = Modifier) {
-    val prostoPainter = rememberProstoLogoPainter()
-    var tintIsWhite by remember { mutableStateOf(false) }
-
+    val painter = rememberProstoLogoPainter()
+    var current by remember { mutableStateOf(0) }
     Icon(
         modifier = modifier
             .norippleClickable {
-                tintIsWhite = !tintIsWhite
+                current = ++current % COLORS.size
             },
-        painter = prostoPainter,
+        painter = painter,
         contentDescription = "ПРОСТО",
-        tint = if (tintIsWhite) Color.White else Color.Black
+        tint = COLORS[current]
     )
 }
